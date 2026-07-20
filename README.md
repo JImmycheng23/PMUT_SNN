@@ -13,10 +13,8 @@ Each sweep records four signal channels — **amplitude**, **phase**, **x_v** (i
 | **Goal 1** | Data pipeline, feature extraction, classical ML baselines | ✅ Complete |
 | **Goal 2** | Spike encoding methods, SNN classifiers | ✅ Complete |
 | **Goal 3** | Reservoir computing (ESN + LSM), cross-model comparison | ✅ Complete |
-| **Goal 4** | Fixed-point quantization, HDL spec + Verilog LIF neuron | ✅ Complete |
 
-**All 4 goals complete (2026-07-16).** Best model: **LSM (LIF reservoir) with membrane readout**, 16-bit Q3.12 fixed-point — HDL-ready.
-
+Best model: **LSM (LIF reservoir) with membrane readout**
 ---
 
 ## Quick Start
@@ -64,8 +62,6 @@ python notebooks/nb12_model_comparison.py
 
 # Goal 4: Fixed-point + HDL
 python notebooks/nb14_fixed_point_pmut.py --task high-glucose --split grouped
-python notebooks/nb15_hdl_test_vectors.py --task high-glucose --split grouped
-python notebooks/nb16_hdl_spec.py --generate-hdl
 ```
 
 ### View Raw Data
@@ -180,8 +176,6 @@ pmut_snn_models/
 │   ├── nb12_model_comparison.py       # Cross-model comparison + Goal 3 report
 │   ├── nb13_fixed_point_lif.py        # Fixed-point LIF neuron validation
 │   ├── nb14_fixed_point_pmut.py       # Quantized PMUT inference bit-width study
-│   ├── nb15_hdl_test_vectors.py       # HDL test-vector generation from PMUT data
-│   ├── nb16_hdl_spec.py               # HDL specification + Verilog LIF neuron
 │   └── generate_report.py              # Goal 1+2 completion report generator
 ├── train.py                   # Neural model training CLI
 ├── prepare_dataset.py         # Dataset preparation (.npz generation)
@@ -198,11 +192,8 @@ pmut_snn_models/
 │   ├── reservoir/             # ESN + LSM results (NB11)
 │   ├── comparison/            # Cross-model comparison + Goal 3 report (NB12)
 │   ├── fixed_point/           # Fixed-point LIF + PMUT study (NB13/NB14)
-│   ├── hdl_test_vectors/      # HDL verification data (NB15)
-│   ├── hdl/                   # HDL spec + Verilog (NB16)
 │   ├── GOAL_1_2_COMPLETION_REPORT.md
 │   ├── GOAL_3_COMPLETION_REPORT.md
-│   └── GOAL_4_COMPLETION_REPORT.md
 ├── CLAUDE.md                  # AI coding assistant guide
 ├── requirements.txt           # Python dependencies
 └── README.md                  # This file
@@ -216,7 +207,6 @@ After running the pipeline, see the completion reports for detailed results:
 |---|---|
 | outputs/GOAL_1_2_COMPLETION_REPORT.md | Data + Classical ML + SNN |
 | outputs/GOAL_3_COMPLETION_REPORT.md | Reservoir computing + model comparison |
-| outputs/GOAL_4_COMPLETION_REPORT.md | Fixed-point + HDL |
 
 ## Key Design Decisions
 
@@ -228,28 +218,6 @@ After running the pipeline, see the completion reports for detailed results:
 | Fixed reservoir weights | Only the readout is trained (ridge regression), making reservoirs extremely data-efficient (important with only 15–23 sweeps). |
 | 16-bit Q3.12 | Matches FPGA DSP48 blocks natively; quantization noise provides beneficial regularization. |
 
-## Hardware Path
-
-The LSM → fixed-point → HDL pipeline is ready for synthesis:
-
-```text
-PMUT raw data → spike encode → LSM reservoir (LIF) → ridge readout
-                                                        ↓
-                                             16-bit Q3.12 quantize
-                                                        ↓
-                                        Verilog LIF neuron (lif_neuron_fxp.v)
-                                                        ↓
-                                            FPGA synthesis (pending)
-```
-
-HDL deliverables in outputs/hdl/:
-
-| Deliverable | Description |
-|---|---|
-| HDL_SPECIFICATION.md | Complete port map, Q-format, update rule, testbench requirements |
-| lif_neuron_fxp.v | Synthesis-ready Verilog module + testbench |
-
-Resource estimate per LIF neuron (16-bit): 1 signed multiplier (16×16), 1 adder, 1 comparator, ~33 flip-flops.
 
 ## Data Limitations
 
