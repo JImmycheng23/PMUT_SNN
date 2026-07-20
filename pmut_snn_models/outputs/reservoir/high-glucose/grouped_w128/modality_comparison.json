@@ -1,0 +1,34 @@
+[
+  {
+    "modality": "amplitude_only",
+    "channels": [
+      0,
+      2
+    ],
+    "n_input": 2,
+    "train_accuracy": 0.8760869565217392,
+    "test_accuracy": 0.7869565217391304
+  },
+  {
+    "modality": "phase_only",
+    "channels": [
+      1,
+      3
+    ],
+    "n_input": 2,
+    "train_accuracy": 0.6565217391304348,
+    "test_accuracy": 0.717391304347826
+  },
+  {
+    "modality": "amplitude_phase",
+    "channels": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "n_input": 4,
+    "train_accuracy": 0.9652173913043478,
+    "test_accuracy": 0.7956521739130434
+  }
+]

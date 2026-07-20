@@ -1,0 +1,14 @@
+Task,Model Family,Model,Accuracy,Acc Std,F1 Macro,Input Type,Spike-Based,Split,Seeds,Mean Spike Count,Efficiency (acc/spike)
+high-glucose,Spike Encoded,Spike-Rate + LR,1.0,,,spike_encoded,Yes,,,29953.6,3.338496875166925e-05
+high-glucose,Spike Encoded,Spike-Latency + LR,1.0,,,spike_encoded,Yes,,,6000.0,0.0001666666666666
+high-glucose,Spike Encoded,Spike-Population + LR,1.0,,,spike_encoded,Yes,,,123.86666666666666,0.0080731969860064
+high-glucose,Spike Encoded,Spike-Delta + LR,0.9333333333333332,,,spike_encoded,Yes,,,543.3333333333334,0.0017177914110429
+high-glucose,Feature ML,Random Forest,0.9333333333333332,,0.9314285714285712,extracted_features,No,,,,
+high-glucose,Feature ML,MLP,0.8666666666666667,,0.8428571428571429,extracted_features,No,,,,
+high-glucose,Reservoir,ESN (n=300),0.8086956521739129,0.0035499851344683534,,full_sweep,No,high-glucose\grouped_w128\metrics_summary.json,3.0,,
+high-glucose,Feature ML,SVM (Linear),0.8000000000000002,,0.7333333333333333,extracted_features,No,,,,
+high-glucose,Feature ML,Logistic Regression,0.8000000000000002,,0.7857142857142857,extracted_features,No,,,,
+high-glucose,Spike Encoded,Spike-Threshold + LR,0.8,,,spike_encoded,Yes,,,69.46666666666667,0.0115163147792706
+high-glucose,Feature ML,SVM (RBF),0.7333333333333334,,0.6647619047619047,extracted_features,No,,,,
+high-glucose,Feature ML,KNN (k=3),0.6,,0.5405194805194805,extracted_features,No,,,,
+high-glucose,Feature ML,KNN (k=5),0.4000000000000001,,0.2333333333333333,extracted_features,No,,,,

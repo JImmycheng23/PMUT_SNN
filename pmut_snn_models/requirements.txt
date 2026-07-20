@@ -1,0 +1,17 @@
+# Core numerical / data
+numpy>=1.26
+pandas>=2.0
+scipy>=1.12
+
+# Excel / file I/O
+openpyxl>=3.1
+
+# Deep learning
+torch>=2.2
+
+# Classical machine learning
+scikit-learn>=1.5
+
+# Visualization
+matplotlib>=3.8
+seaborn>=0.13

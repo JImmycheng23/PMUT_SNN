@@ -1,0 +1,14 @@
+Task,Model Family,Model,Accuracy,Acc Std,F1 Macro,Input Type,Spike-Based,Split,Seeds,Mean Spike Count,Efficiency (acc/spike)
+glucose-ladder,Spike Encoded,Spike-Rate + LR,1.0,,,spike_encoded,Yes,,,24907.478260869564,4.014858467511067e-05
+glucose-ladder,Spike Encoded,Spike-Latency + LR,1.0,,,spike_encoded,Yes,,,4956.521739130435,0.0002017543859649
+glucose-ladder,Spike Encoded,Spike-Population + LR,1.0,,,spike_encoded,Yes,,,127.69565217391305,0.0078311201906707
+glucose-ladder,Spike Encoded,Spike-Delta + LR,0.9565217391304348,,,spike_encoded,Yes,,,407.0869565217391,0.0023496742497062
+glucose-ladder,Spike Encoded,Spike-Threshold + LR,0.8260869565217391,,,spike_encoded,Yes,,,54.82608695652174,0.0150674068199841
+glucose-ladder,Reservoir,ESN (n=300),0.7524950099800399,0.0028227815616229143,,full_sweep,No,glucose-ladder\window_w128\metrics_summary.json,3.0,,
+glucose-ladder,Feature ML,Random Forest,0.6086956521739131,,0.3472527472527472,extracted_features,No,,,,
+glucose-ladder,Feature ML,MLP,0.5652173913043478,,0.326007326007326,extracted_features,No,,,,
+glucose-ladder,Feature ML,KNN (k=3),0.4347826086956521,,0.2285714285714286,extracted_features,No,,,,
+glucose-ladder,Feature ML,SVM (Linear),0.2608695652173913,,0.1538461538461538,extracted_features,No,,,,
+glucose-ladder,Feature ML,Logistic Regression,0.217391304347826,,0.1274725274725274,extracted_features,No,,,,
+glucose-ladder,Feature ML,KNN (k=5),0.0869565217391304,,0.0236686390532544,extracted_features,No,,,,
+glucose-ladder,Feature ML,SVM (RBF),0.0,,0.0,extracted_features,No,,,,
