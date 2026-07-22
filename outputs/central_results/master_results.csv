@@ -1,0 +1,27 @@
+experiment,task,split,window,model,seed,final_test_accuracy,balanced_accuracy,macro_f1,best_val_accuracy,best_epoch,output_file
+Point 6 Neural models,high-glucose,grouped,128,cnn1d,7,0.8435,0.8434782608695652,0.8357142857142857,0.8804347826086957,42,runs\high-glucose_grouped_cnn1d_w128_seed7\metrics.json
+Point 5 Encoder→SNN,high-glucose,grouped,128,encoded_spike_snn (amplitude),7,0.3000,N/A,N/A,0.41304347826086957,77,runs\high-glucose_grouped_encoded_spike_snn_w128_seed7\metrics.json
+Point 6 Neural models,high-glucose,grouped,128,rate_snn_mlp,7,0.7348,N/A,N/A,0.8586956521739131,13,runs\high-glucose_grouped_rate_snn_mlp_w128_seed7\metrics.json
+Point 6 Neural models,high-glucose,grouped,128,spiking_cnn1d,7,0.8304,N/A,N/A,0.8695652173913043,143,runs\high-glucose_grouped_spiking_cnn1d_w128_seed7\metrics.json
+Point 6 Neural models,high-glucose,grouped,128,temporal_lif_snn,7,0.7609,N/A,N/A,0.8369565217391305,123,runs\high-glucose_grouped_temporal_lif_snn_w128_seed7\metrics.json
+Point 10 Reservoir,high-glucose,grouped,128,ESN (tanh),3 seeds,0.8087 ± 0.0035,—,—,—,—,reservoir\high-glucose\grouped_w128\metrics_summary.json
+Point 10 Reservoir,glucose-ladder,window,128,ESN (tanh),3 seeds,0.7007 ± 0.0111,—,—,—,—,reservoir\glucose-ladder\window_w128\metrics_summary.json
+Point 11 Modality,high-glucose,grouped,128,ESN amplitude,1,0.7348,—,—,—,—,reservoir\high-glucose\grouped_w128\modality_comparison.json
+Point 11 Modality,high-glucose,grouped,128,ESN phase,1,0.4348,—,—,—,—,reservoir\high-glucose\grouped_w128\modality_comparison.json
+Point 11 Modality,high-glucose,grouped,128,ESN amplitude+phase,1,0.8174,—,—,—,—,reservoir\high-glucose\grouped_w128\modality_comparison.json
+Point 11 Modality,high-glucose,grouped,128,ESN complex_iq,1,0.8217,—,—,—,—,reservoir\high-glucose\grouped_w128\modality_comparison.json
+Point 11 Modality,high-glucose,grouped,128,ESN all_four,1,0.7957,—,—,—,—,reservoir\high-glucose\grouped_w128\modality_comparison.json
+Point 3/12 Feature ML,high-glucose,CV,—,Logistic Regression,CV,0.6667,—,0.6648,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,SVM (RBF),CV,0.6667,—,0.6576,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,SVM (Linear),CV,0.5333,—,0.5352,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,Random Forest,CV,0.9333,—,0.9314,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,KNN (k=3),CV,0.6000,—,0.5681,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,KNN (k=5),CV,0.4667,—,0.3405,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,high-glucose,CV,—,MLP,CV,0.8000,—,0.7848,—,—,outputs/feature_ml/high-glucose_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,Logistic Regression,CV,0.3478,—,0.2103,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,SVM (RBF),CV,0.0000,—,0.0000,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,SVM (Linear),CV,0.4348,—,0.2505,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,Random Forest,CV,0.5652,—,0.3333,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,KNN (k=3),CV,0.2609,—,0.1218,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,KNN (k=5),CV,0.1739,—,0.0654,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv
+Point 3/12 Feature ML,glucose-ladder,CV,—,MLP,CV,0.4348,—,0.2557,—,—,outputs/feature_ml/glucose-ladder_baseline_summary.csv

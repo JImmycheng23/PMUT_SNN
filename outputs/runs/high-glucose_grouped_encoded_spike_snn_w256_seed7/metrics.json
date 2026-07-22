@@ -1,0 +1,46 @@
+{
+  "seed": 7,
+  "model": "encoded_spike_snn",
+  "device": "cpu",
+  "epochs": 5,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "labels": [
+    "Glucose 50 mM",
+    "Glucose 100 mM",
+    "Glucose 250 mM",
+    "Glucose 500 mM",
+    "Glucose 1000 mM"
+  ],
+  "dataset": {
+    "task": "high-glucose",
+    "split": "grouped",
+    "window_size": 256,
+    "stride": 256,
+    "n_samples": 345,
+    "n_train": 230,
+    "n_test": 115,
+    "normalization_mean": [
+      0.00449143722653389,
+      -1.8207216262817383,
+      0.004485500976443291,
+      -0.00016244762809947133
+    ],
+    "normalization_std": [
+      0.0011197442654520273,
+      2.181807279586792,
+      0.0011169788194820285,
+      0.00018101681780535728
+    ],
+    "encoder": "delta",
+    "n_steps": 50,
+    "encode_seed": 7
+  },
+  "final_test_accuracy": 0.25217391304347825,
+  "best": {
+    "epoch": 1,
+    "train_loss": 1.6065546125173569,
+    "train_accuracy": 0.2330729179084301,
+    "test_accuracy": 0.25217391304347825
+  }
+}

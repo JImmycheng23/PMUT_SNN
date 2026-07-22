@@ -1,0 +1,16 @@
+{
+  "states_captured": 5,
+  "separability": {
+    "Glucose 50 mM vs Glucose 100 mM": 1.0,
+    "Glucose 50 mM vs Glucose 250 mM": 1.0,
+    "Glucose 50 mM vs Glucose 500 mM": 1.0,
+    "Glucose 50 mM vs Glucose 1000 mM": 1.0,
+    "Glucose 100 mM vs Glucose 250 mM": 1.0,
+    "Glucose 100 mM vs Glucose 500 mM": 1.0,
+    "Glucose 100 mM vs Glucose 1000 mM": 1.0,
+    "Glucose 250 mM vs Glucose 500 mM": 1.0,
+    "Glucose 250 mM vs Glucose 1000 mM": 1.0,
+    "Glucose 500 mM vs Glucose 1000 mM": 1.0
+  },
+  "pca_plot": "C:\\Users\\27010\\Desktop\\Neumat\\Data\\pmut_snn_models\\outputs\\reservoir\\high-glucose\\grouped_w128\\high-glucose_state_pca.png"
+}

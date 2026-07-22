@@ -1,0 +1,28 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# IDE & editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# AI assistant internal
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Output artifacts (uncomment to ignore generated results)
+# outputs/

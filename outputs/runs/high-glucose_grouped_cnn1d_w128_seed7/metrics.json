@@ -1,0 +1,95 @@
+{
+  "seed": 7,
+  "model": "cnn1d",
+  "device": "cpu",
+  "epochs": 150,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "labels": [
+    "Glucose 50 mM",
+    "Glucose 100 mM",
+    "Glucose 250 mM",
+    "Glucose 500 mM",
+    "Glucose 1000 mM"
+  ],
+  "dataset": {
+    "task": "high-glucose",
+    "split": "grouped",
+    "window_size": 128,
+    "stride": 128,
+    "n_samples": 690,
+    "n_train": 460,
+    "n_train_final": 368,
+    "n_val": 92,
+    "n_test": 230,
+    "normalization_mean": [
+      0.00449143722653389,
+      -1.8207216262817383,
+      0.004485500976443291,
+      -0.00016244762809947133
+    ],
+    "normalization_std": [
+      0.0011197442654520273,
+      2.181807279586792,
+      0.0011169788194820285,
+      0.00018101681780535728
+    ]
+  },
+  "final_test_accuracy": 0.8434782608695652,
+  "balanced_accuracy": 0.8434782608695652,
+  "macro_precision": 0.8536130536130535,
+  "macro_recall": 0.8434782608695652,
+  "macro_f1": 0.8357142857142857,
+  "per_class_recall": {
+    "Glucose 50 mM": 0.391304347826087,
+    "Glucose 100 mM": 0.8260869565217391,
+    "Glucose 250 mM": 1.0,
+    "Glucose 500 mM": 1.0,
+    "Glucose 1000 mM": 1.0
+  },
+  "confusion_matrix": [
+    [
+      18,
+      28,
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      38,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      46,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      46,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      46
+    ]
+  ],
+  "n_val": 92,
+  "has_val": true,
+  "best": {
+    "epoch": 42,
+    "train_loss": 0.3975836659471194,
+    "train_accuracy": 0.8229166666666666,
+    "val_accuracy": 0.8804347826086957
+  }
+}

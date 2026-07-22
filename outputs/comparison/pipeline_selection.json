@@ -1,0 +1,95 @@
+{
+  "criteria": {
+    "accuracy": 0.35,
+    "robustness": 0.2,
+    "spike_efficiency": 0.25,
+    "complexity": 0.1,
+    "reproducibility": 0.1
+  },
+  "scores": [
+    {
+      "pipeline": "Latency-Encoded + LR",
+      "spike_based": true,
+      "avg_accuracy": 1.0,
+      "best_accuracy": 1.0,
+      "accuracy_score": 1.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.9,
+      "reproducibility_score": 0.5,
+      "total_score": 0.8233333333333334
+    },
+    {
+      "pipeline": "Reservoir + Ridge",
+      "spike_based": false,
+      "avg_accuracy": 0.7805953310769764,
+      "best_accuracy": 0.8086956521739129,
+      "accuracy_score": 0.8086956521739129,
+      "robustness_score": 0.9787574443463625,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.8,
+      "reproducibility_score": 0.8,
+      "total_score": 0.713794967130142
+    },
+    {
+      "pipeline": "RF on Features",
+      "spike_based": false,
+      "avg_accuracy": 0.7710144927536231,
+      "best_accuracy": 0.9333333333333332,
+      "accuracy_score": 0.9333333333333332,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.5,
+      "reproducibility_score": 0.5,
+      "total_score": 0.635
+    },
+    {
+      "pipeline": "TemporalLIFSNN",
+      "spike_based": true,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.6,
+      "reproducibility_score": 0.5,
+      "total_score": 0.44333333333333336
+    },
+    {
+      "pipeline": "SpikingCNN1D",
+      "spike_based": true,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.35,
+      "reproducibility_score": 0.5,
+      "total_score": 0.41833333333333333
+    },
+    {
+      "pipeline": "CNN1D (non-spiking)",
+      "spike_based": false,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.3,
+      "reproducibility_score": 0.5,
+      "total_score": 0.28833333333333333
+    }
+  ],
+  "selected": {
+    "pipeline": "Latency-Encoded + LR",
+    "spike_based": true,
+    "avg_accuracy": 1.0,
+    "best_accuracy": 1.0,
+    "accuracy_score": 1.0,
+    "robustness_score": 0.6666666666666666,
+    "spike_efficiency_score": 0.8,
+    "complexity_score": 0.9,
+    "reproducibility_score": 0.5,
+    "total_score": 0.8233333333333334
+  }
+}

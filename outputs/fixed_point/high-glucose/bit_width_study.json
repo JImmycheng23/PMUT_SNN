@@ -1,0 +1,47 @@
+[
+  {
+    "format": "Float (reference)",
+    "bits": 32,
+    "accuracy": 0.8478260869565217,
+    "accuracy_float": 0.8478260869565217,
+    "accuracy_quantized": 0.8478260869565217,
+    "acc_drop": 0.0,
+    "qfmt": "float32"
+  },
+  {
+    "format": "16-bit",
+    "bits": 16,
+    "accuracy": 0.8608695652173913,
+    "accuracy_float": 0.8478260869565217,
+    "accuracy_quantized": 0.8608695652173913,
+    "qfmt": "Qs3.12 (16-bit)",
+    "acc_drop": -0.013043478260869601
+  },
+  {
+    "format": "12-bit",
+    "bits": 12,
+    "accuracy": 0.8304347826086956,
+    "accuracy_float": 0.8478260869565217,
+    "accuracy_quantized": 0.8304347826086956,
+    "qfmt": "Qs3.8 (12-bit)",
+    "acc_drop": 0.017391304347826098
+  },
+  {
+    "format": "8-bit",
+    "bits": 8,
+    "accuracy": 0.7782608695652173,
+    "accuracy_float": 0.8478260869565217,
+    "accuracy_quantized": 0.7782608695652173,
+    "qfmt": "Qs3.4 (8-bit)",
+    "acc_drop": 0.06956521739130439
+  },
+  {
+    "format": "4-bit",
+    "bits": 4,
+    "accuracy": 0.7260869565217392,
+    "accuracy_float": 0.8478260869565217,
+    "accuracy_quantized": 0.7260869565217392,
+    "qfmt": "Qs1.2 (4-bit)",
+    "acc_drop": 0.12173913043478257
+  }
+]
