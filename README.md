@@ -15,7 +15,7 @@ Each sweep records four signal channels — **amplitude**, **phase**, **x_v** (i
 | **Goal 3** | Reservoir computing (ESN + LSM), cross-model comparison | ✅ Complete |
 | **Goal 4** | Fixed-point quantization, HDL spec + Verilog LIF neuron | ✅ Complete |
 
-**All 4 goals complete .** Best model: **LSM (LIF reservoir) with membrane readout**, 16-bit Q3.12 fixed-point — HDL-ready.
+**All 4 goals complete (post-review fixes 2026-07-22).** Best model: **CNN1D (84.3%)** on high-glucose; **LSM (81.4%)** on glucose-ladder. 16-bit Q3.12 fixed-point preserves accuracy — HDL-ready.
 
 ---
 
@@ -125,22 +125,33 @@ Both reservoirs have fixed random weights — only the ridge regression readout 
 
 ## Key Results
 
-### Best Neural Model: LSM (LIF reservoir, membrane readout)
+### Neural Models — high-glucose grouped (train/val/test split)
 
-| Task | LSM (membrane) | CNN1D | ESN (tanh) |
-|---|---|---|---|
-| high-glucose (5-class, grouped) | 82.3% | 89.8% | 80.4% |
-| glucose-ladder (13-class, window) | 84.4% | 81.4% | 75.1% |
+| Model | Test Acc | Type |
+|---|---|---|
+| **CNN1D** | **84.3%** | Non-spiking CNN |
+| SpikingCNN1D | 83.0% | Spiking CNN |
+| ESN (tanh) | 80.9% ± 0.4% | Reservoir |
+| LSM (membrane) | 80.3% ± 1.4% | Spiking reservoir |
+| TemporalLIFSNN | 76.1% | Spiking RNN |
+| EncodedSpikeSNN (rate) | 30.0% | Explicit encoder→SNN |
 
-LSM dominates on the harder multi-class task (+9.4% over ESN, +3.0% over CNN1D).
+### Reservoir Models — glucose-ladder window
 
-### Feature-Based ML Baselines (cross-validated, sweep-level)
+| Model | Test Acc |
+|---|---|
+| **LSM (membrane)** | **81.4% ± 1.2%** |
+| ESN (tanh) | 70.1% ± 1.1% |
+
+LSM dominates on the harder 13-class task (+11.3 pp over ESN).
+
+### Feature-Based ML Baselines (CV, Pipeline — no leakage)
 
 | Model | high-glucose (5-class) | glucose-ladder (13-class) |
 |---|---|---|
-| Random Forest | 93.3% | 60.9% |
-| MLP | 86.7% | 56.5% |
-| SVM (Linear) | 80.0% | 26.1% |
+| Random Forest | **93.3%** | **56.5%** |
+| MLP | 80.0% | 43.5% |
+| Logistic Regression | 66.7% | 34.8% |
 
 ⚠️ Feature-based ML uses sweep-level engineered features and should not be directly compared to window-level neural models.
 
@@ -157,7 +168,7 @@ LSM dominates on the harder multi-class task (+9.4% over ESN, +3.0% over CNN1D).
 
 ### Best Spike Encoder
 
-Latency coding — 100% accuracy with ~6× fewer spikes than rate coding.
+Delta coding — best test generalisation on high-glucose (40% vs chance 20%) in sweep-level encoder evaluation (NB9). Latency coding — ~6× fewer spikes than rate coding with comparable information preservation.
 
 ## Project Structure
 
@@ -200,9 +211,9 @@ pmut_snn_models/
 │   ├── fixed_point/           # Fixed-point LIF + PMUT study (NB13/NB14)
 │   ├── hdl_test_vectors/      # HDL verification data (NB15)
 │   ├── hdl/                   # HDL spec + Verilog (NB16)
-│   ├── GOAL_1_2_COMPLETION_REPORT.md
-│   ├── GOAL_3_COMPLETION_REPORT.md
-│   └── GOAL_4_COMPLETION_REPORT.md
+│   ├── FINAL_COMPLETION_REPORT.md    ← Comprehensive report (all goals, honest results)
+│   ├── RESPONSE_TO_SUPERVISOR_REVIEW.md
+│   └── SUPERVISOR_SUMMARY_TABLE.md
 ├── CLAUDE.md                  # AI coding assistant guide
 ├── requirements.txt           # Python dependencies
 └── README.md                  # This file
@@ -210,13 +221,12 @@ pmut_snn_models/
 
 ## Output Reports
 
-After running the pipeline, see the completion reports for detailed results:
-
 | Report | Description |
 |---|---|
-| outputs/GOAL_1_2_COMPLETION_REPORT.md | Data + Classical ML + SNN |
-| outputs/GOAL_3_COMPLETION_REPORT.md | Reservoir computing + model comparison |
-| outputs/GOAL_4_COMPLETION_REPORT.md | Fixed-point + HDL |
+| `outputs/FINAL_COMPLETION_REPORT.md` | Comprehensive report — all 4 goals, honest post-review results |
+| `outputs/RESPONSE_TO_SUPERVISOR_REVIEW.md` | Full 18-point supervisor response with code references |
+| `outputs/SUPERVISOR_SUMMARY_TABLE.md` | Clean summary table (email-ready) |
+| `outputs/central_results/master_results.csv` | All experiments, machine-readable |
 
 ## Key Design Decisions
 
