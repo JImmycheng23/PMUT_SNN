@@ -572,19 +572,3 @@ All changes made in 2026-07-20 and 2026-07-22 are documented in the CLAUDE.md se
 | **P2** | 17 | Add balanced accuracy and per-class metrics to all reports | ✅ Fixed — 6 metrics saved to every metrics.json |
 | _Done_ | 1,2,3,4,7,8,18 | Already addressed or confirmed | ✅ |
 | _Regenerated_ | 5,6 | Honest numbers after Point 13 fix | ✅ |
-
----
-
-## Summary
-
-Overall, the project has a strong foundation. The main systematic issues are:
-
-1. **Test-data leakage in model selection** (Points 12, 13, 14) — the test set is used for scaler fitting, epoch selection, and hyperparameter tuning. This inflates reported accuracies and must be corrected for publication.
-
-2. **Missing raw experiment outputs** (Points 6, 10) — key results (LSM, some CNN/SNN runs) are not backed by saved output files. These need regeneration.
-
-3. **Confounded ablation** (Point 11) — the amplitude-vs-phase comparison is invalid due to x_v/y_v mixing information across channels.
-
-4. **Acquisition-protocol confound** (Point 9) — the 13-class ladder combines two datasets with different frequency ranges without alignment.
-
-Addressing these systematically will produce defensible, publication-quality results.
