@@ -1,7 +1,7 @@
 # PMUT Neuromorphic Classification — Final Completion Report
 
-**Date:** 2026-07-21  
-**Repository:** https://github.com/JImmycheng23/PMUT_SNN (branch: `review-fixes-2026-07-21`)  
+**Date:** 2026-07-22  
+**Repository:** https://github.com/JImmycheng23/PMUT_SNN (branch: `review-fixes-2026-07-22`)  
 **Evaluation protocol:** Sweep-level train/validation/test separation throughout. No data leakage.
 
 ---
@@ -123,7 +123,7 @@ All encoders preserve class-discriminative information (100% train accuracy). Ge
 
 ### Approach A: Explicit encoder → SNN
 
-Pipeline: PMUT amplitude → hand-designed encoder → binary spike trains → `EncodedSpikeSNN` (LIF) → classification. Built 2026-07-21 to connect previously-disconnected NB8 encoders to the SNN training pipeline (`train.py --encode`).
+Pipeline: PMUT amplitude → hand-designed encoder → binary spike trains → `EncodedSpikeSNN` (LIF) → classification. Built 2026-07-22 to connect previously-disconnected NB8 encoders to the SNN training pipeline (`train.py --encode`).
 
 **high-glucose (grouped, train/val/test split, seed 7, 150 epochs):**
 

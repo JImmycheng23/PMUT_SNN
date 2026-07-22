@@ -1,6 +1,6 @@
 # Response to Supervisor Review (Plan.docx — 18 Points)
 
-**Date:** 2026-07-21  
+**Date:** 2026-07-22  
 **Repository:** `pmut_snn_models`
 ---
 
@@ -46,7 +46,7 @@ The final paper should remove IPA and acetone and focus on air, DI water, and th
 
 ## Point 2 — Resonance-frequency extraction
 
-### Status: ✅ FIXED (2026-07-21)
+### Status: ✅ FIXED (2026-07-22)
 
 The global `argmax(amplitude)` was indeed picking up sweep boundary artifacts. Investigation revealed the PMUT in liquid-loaded Tx-Rx mode is heavily overdamped (Q_eff < 0.5).
 
@@ -63,10 +63,10 @@ The global `argmax(amplitude)` was indeed picking up sweep boundary artifacts. I
 
 ## Point 3 — ML result differences
 
-### Status: ✅ FIXED (2026-07-20) + regenerated after Point 12 fix (2026-07-21)
+### Status: ✅ FIXED (2026-07-20) + regenerated after Point 12 fix (2026-07-22)
 ⚠️ **Dependency:** Point 12 (scaler leakage) affected these numbers. Results below are final — Pipeline prevents leakage.
 
-The previous 100% values in the completion report were training-set accuracies from `model.fit(X, y); model.predict(X)` with no holdout. Fixed 2026-07-20 by replacing with `cross_val_predict`. Then on 2026-07-21 the scaler leakage was discovered (see Point 12) — `StandardScaler` was fitted on all data before CV. Fixed with `make_pipeline(StandardScaler(), model)`.
+The previous 100% values in the completion report were training-set accuracies from `model.fit(X, y); model.predict(X)` with no holdout. Fixed 2026-07-20 by replacing with `cross_val_predict`. Then on 2026-07-22 the scaler leakage was discovered (see Point 12) — `StandardScaler` was fitted on all data before CV. Fixed with `make_pipeline(StandardScaler(), model)`.
 
 **Final honest results (NB5, after both fixes):**
 
@@ -84,7 +84,7 @@ The old results are preserved in `outputs/feature_ml/` with descriptive filename
 
 ## Point 4 — Spike-encoder evaluation in NB9
 
-### Status: ✅ FIXED (2026-07-21)
+### Status: ✅ FIXED (2026-07-22)
 
 Confirmed: the original code did `clf.fit(X, y); clf.predict(X)` on identical data — training-set accuracy.
 
@@ -110,7 +110,7 @@ All encoders achieve 100% train accuracy (class info is preserved). Generalisati
 
 ## Point 5 — Explicit spike encoders vs SNN models
 
-### Status: ✅ FIXED (2026-07-21) — Connection built + regenerated after Point 13 fix
+### Status: ✅ FIXED (2026-07-22) — Connection built + regenerated after Point 13 fix
 
 **Clarification:** Yes, the two approaches were completely disconnected. Confirmed:
 - **Approach A (Explicit encoding):** PMUT signal → hand-designed encoder (rate/latency/delta/etc.) → binary spike trains → classifier/SNN
@@ -120,7 +120,7 @@ All encoders achieve 100% train accuracy (class info is preserved). Generalisati
 
 **Pipeline connection built:** Added `EncodedSpikeSNN` model to `spiking.py`, `encode_dataset_bundle()` to `train_utils.py`, and `--encode` flag to `train.py`.
 
-**Regenerated 2026-07-21 after Point 13 fix** — now uses train/val/test split (368/92/230 windows).
+**Regenerated 2026-07-22 after Point 13 fix** — now uses train/val/test split (368/92/230 windows).
 `best_val_accuracy` = model selection on validation set; `final_test_accuracy` = test set used ONCE.
 
 **Approach A results (encoder → SNN, high-glucose grouped, win=128, seed=7, 150 epochs):**
@@ -158,9 +158,9 @@ All runs saved to `outputs/runs/high-glucose_grouped_<model>_w128_seed7/metrics.
 
 ## Point 6 — SNN/CNN numerical results
 
-### Status: ✅ REGENERATED (2026-07-21) — honest train/val/test pipeline
+### Status: ✅ REGENERATED (2026-07-22) — honest train/val/test pipeline
 
-**The problem:** Zero saved experiment outputs existed for any SNN/CNN model. Numbers in the completion report (CNN1D 89.8%, etc.) were not backed by files. Furthermore, the original regeneration (earlier 2026-07-21) used test-for-epoch-selection.
+**The problem:** Zero saved experiment outputs existed for any SNN/CNN model. Numbers in the completion report (CNN1D 89.8%, etc.) were not backed by files. Furthermore, the original regeneration (earlier 2026-07-22) used test-for-epoch-selection.
 
 **Regenerated after Point 13 fix** — train/val/test split (368/92/230), best-val checkpoint loaded, test used ONCE.
 
@@ -215,7 +215,7 @@ For high-glucose (3 sweeps per class): sweeps 1 & 2 → training, sweep 3 → te
 
 ## Point 9 — Low/high concentration acquisition ranges
 
-### Status: ✅ FIXED (2026-07-21)
+### Status: ✅ FIXED (2026-07-22)
 
 **The problem:** The two campaigns had different frequency ranges — low-conc at 100 kHz – 1.5 MHz, high-conc at 100 kHz – 2.5 MHz. When concatenated into the 13-class ladder, a model could learn to distinguish campaigns by frequency range rather than glucose concentration.
 
@@ -237,7 +237,7 @@ high = high[high["frequency_hz"] <= COMMON_FMAX].copy()
 
 ## Point 10 — LSM headline numbers
 
-### Status: ✅ FIXED (2026-07-21) — LSM trained, saved, NB12 loads dynamically
+### Status: ✅ FIXED (2026-07-22) — LSM trained, saved, NB12 loads dynamically
 
 **Root cause:** The `LiquidStateMachine` class existed in `reservoir.py` but was never called from NB11's evaluation pipeline. NB11 only trained ESN (tanh reservoir). The 82.3%/84.4% numbers in the NB12 report were hardcoded with no provenance.
 
@@ -284,7 +284,7 @@ high = high[high["frequency_hz"] <= COMMON_FMAX].copy()
 
 ## Point 11 — Amplitude-only/phase-only ablation
 
-### Status: ✅ FIXED (2026-07-21) — Clean channel definitions, new results
+### Status: ✅ FIXED (2026-07-22) — Clean channel definitions, new results
 
 **The problem:** The old channel definitions used [A, x_v] for "amplitude_only" and [φ, y_v] for "phase_only". Since x_v = A·cos(φ) and y_v = A·sin(φ), both modalities contained mixed information. The conclusion "amplitude beats phase, phase adds noise" was invalid.
 
@@ -328,7 +328,7 @@ Also added `use_lsm` parameter so the modality comparison works for both ESN and
 
 ## Point 12 — Preprocessing inside cross-validation
 
-### Status: ✅ FIXED (2026-07-21) — Pipeline prevents scaler leakage
+### Status: ✅ FIXED (2026-07-22) — Pipeline prevents scaler leakage
 
 **The problem:** `StandardScaler` was fitted on all data before cross-validation, leaking test-fold statistics into the scaler parameters. With only 15–23 sweeps, this inflates CV accuracy significantly for scale-sensitive models.
 
@@ -370,7 +370,7 @@ The scaler leakage inflated results by 7–27 pp for scale-sensitive models (LR,
 
 ## Point 13 — Test set used for epoch/model selection
 
-### Status: ✅ FIXED (2026-07-21) — Train/val/test split implemented
+### Status: ✅ FIXED (2026-07-22) — Train/val/test split implemented
 
 **The problem:** `train_single_run` evaluated test accuracy every epoch and saved the best-test-accuracy checkpoint. The test set was used for model selection, invalidating it as an unbiased performance measure.
 
@@ -418,7 +418,7 @@ Test:  230 windows (sweep 3 holdout) → final evaluation ONCE
 
 ## Point 14 — Reservoir hyperparameter selection on test data
 
-### Status: ✅ FIXED (2026-07-21) — HP selection uses internal val split, test never seen
+### Status: ✅ FIXED (2026-07-22) — HP selection uses internal val split, test never seen
 
 **The problem:** `reservoir_grid_search()` received `x_test, y_test` directly and selected the best HP configuration based on test accuracy. The test set was used for hyperparameter tuning, biasing the final reported test result.
 
@@ -446,7 +446,7 @@ NEW: x_train → internal 80/20 split → fit on train, eval on val → select b
 
 ## Point 15 — Frequency index ≠ physical time
 
-### Status: ✅ FIXED (2026-07-21) — Language updated across all files
+### Status: ✅ FIXED (2026-07-22) — Language updated across all files
 
 **Rationale:** The reservoir and TemporalLIFSNN process frequency bins sequentially (f₁, f₂, …, f_N), which is computationally reasonable but is NOT the same as measuring physical time-domain dynamics.
 
@@ -474,7 +474,7 @@ NEW: x_train → internal 80/20 split → fit on train, eval on val → select b
 
 ### Status: NEEDS CLARIFICATION
 
-### Status: ✅ FIXED (2026-07-21) — Procedure clarified, "regularization" claims removed
+### Status: ✅ FIXED (2026-07-22) — Procedure clarified, "regularization" claims removed
 
 **Current procedure** — confirmed as **retrained-readout quantization**:
 
@@ -502,7 +502,7 @@ This is NOT post-training quantization of a frozen classifier. Each bit width ge
 
 ## Point 17 — Balanced/class-wise accuracy
 
-### Status: ✅ FIXED (2026-07-21) — All metrics saved to metrics.json for every experiment
+### Status: ✅ FIXED (2026-07-22) — All metrics saved to metrics.json for every experiment
 
 **The problem:** Overall accuracy alone is misleading for the 13-class glucose-ladder because high-concentration classes have 3× more sweeps (and thus ~3× more windows) than low-concentration classes.
 
@@ -549,7 +549,7 @@ For glucose-ladder where class imbalance matters, `balanced_accuracy` now reveal
 
 ### Status: ACKNOWLEDGED
 
-All changes made in 2026-07-20 and 2026-07-21 are documented in the CLAUDE.md session log with timestamps. Old result files are preserved. No destructive changes were made.
+All changes made in 2026-07-20 and 2026-07-22 are documented in the CLAUDE.md session log with timestamps. Old result files are preserved. No destructive changes were made.
 
 **For future changes** (Points 6, 9-17), I will create clearly named revision folders before modifying evaluation code.
 
