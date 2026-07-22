@@ -1,6 +1,5 @@
 # Fixed-Point LIF Neuron — HDL Specification
 
-**Generated:** 2026-07-22
 **Target:** PMUT Neuromorphic Classification Pipeline
 **Neuron Model:** Leaky Integrate-and-Fire (LIF)
 **Scope:** Architecture-level specification — defines the generic LIF neuron building block.
