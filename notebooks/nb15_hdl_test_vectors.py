@@ -34,8 +34,8 @@ def extract_pmut_spike_example(bundle, neuron_idx: int = 0, n_steps: int = 50) -
     Takes one test sample and converts amplitude channels to spike-like inputs
     via simple threshold-crossing (simulates spike-encoded PMUT data).
     """
-    # Use first test sample
-    sample = bundle.x_test[0]  # (seq_len, n_channels)
+    # Use first training sample (NOT test — demo only, but keep test set untouched)
+    sample = bundle.x_train[0]  # (seq_len, n_channels)
 
     # Convert amplitude channels (0, 2) to binary spike trains via threshold-crossing
     seq_len = min(n_steps, sample.shape[0])
@@ -56,7 +56,7 @@ def extract_pmut_spike_example(bundle, neuron_idx: int = 0, n_steps: int = 50) -
 def main() -> None:
     parser = argparse.ArgumentParser(description="HDL Test-Vector Generation — NB15")
     parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
-    parser.add_argument("--split", default="random_window")
+    parser.add_argument("--split", default="grouped")
     parser.add_argument("--window-size", type=int, default=128)
     parser.add_argument("--n-neurons", type=int, default=10, help="Number of LIF neurons for HDL testbench")
     parser.add_argument("--n-steps", type=int, default=64, help="Number of time steps for test vectors")

@@ -555,6 +555,27 @@ All changes made in 2026-07-20 and 2026-07-21 are documented in the CLAUDE.md se
 
 ---
 
+## Additional HDL findings (NB13–NB16 review)
+
+While reviewing the supervisor's points, I also audited the Goal 4 HDL pipeline for similar issues. Three items were found and fixed:
+
+### NB15 (HDL Test Vectors) — ⚠️ Two fixes applied
+
+1. **Used test sample for demo:** `extract_pmut_spike_example()` was using `bundle.x_test[0]`. Not a data leakage issue (no model evaluation), but changed to `bundle.x_train[0]` for purity.
+2. **Default split was `random_window`:** Changed to `grouped` for consistency with the primary high-glucose evaluation.
+
+### NB16 (HDL Spec + Verilog) — ⚠️ Two fixes applied
+
+1. **Spec/Verilog port mismatch:** The HDL spec listed `i_beta` and `i_threshold` as input ports, but the generated Verilog hardcoded them as `parameter BETA` and `parameter THRESHOLD`. The spec has been corrected to document beta/threshold as parameters, and the embedded Verilog snippet now matches the generated output file.
+2. **Scope clarification:** The spec is an architecture-level generic LIF neuron specification — it is NOT derived from trained classifier weights. A note was added to the spec header to prevent misinterpretation. The "PMUT-derived" claim refers to the NB15 test vectors used for verification, which is accurate.
+
+### NB13 (Fixed-Point LIF) — ✅ No issues
+
+Unit test of the LIF neuron model using synthetic step currents. Reproducible, no data leakage.
+
+### NB14 (Fixed-Point PMUT) — ✅ Addressed in Point 16
+
+---
 
 ## Priority Action Items
 

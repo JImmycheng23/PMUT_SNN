@@ -1,8 +1,11 @@
 # Fixed-Point LIF Neuron — HDL Specification
 
-**Generated:** 2026-07-20
+**Generated:** 2026-07-22
 **Target:** PMUT Neuromorphic Classification Pipeline
 **Neuron Model:** Leaky Integrate-and-Fire (LIF)
+**Scope:** Architecture-level specification — defines the generic LIF neuron building block.
+This spec is NOT derived from trained classifier weights; it describes the neuron
+hardware primitive. PMUT-derived test vectors (from NB15) are used for verification.
 
 ---
 
@@ -23,13 +26,21 @@ Produces updated membrane potential and spike output.
 | `clk` | input | 1 | System clock |
 | `rst_n` | input | 1 | Active-low reset |
 | `i_current` | input | `TOTAL_BITS` | Input synaptic current (Q3.12) |
-| `i_beta` | input | `TOTAL_BITS` | Membrane decay factor β (Q3.12) |
-| `i_threshold` | input | `TOTAL_BITS` | Firing threshold θ (Q3.12) |
-| `i_membrane_init` | input | `TOTAL_BITS` | Initial membrane potential |
 | `i_valid` | input | 1 | Input valid strobe |
 | `o_spike` | output | 1 | Spike output (1 = fire) |
 | `o_membrane` | output | `TOTAL_BITS` | Updated membrane potential (Q3.12) |
 | `o_ready` | output | 1 | Output valid strobe |
+
+**Parameters** (hardcoded as Verilog `parameter`, not runtime inputs):
+
+| Parameter | Value | Description |
+|---|---|---|
+| `BETA` | 3686 | Membrane decay β = 0.9 → 0.9 in Q3.12 |
+| `THRESHOLD` | 4096 | Firing threshold θ = 1.0 → 1.0 in Q3.12 |
+| `MAX_VAL` | 32767 | Positive saturation limit |
+| `MIN_VAL` | -32768 | Negative saturation limit |
+
+β and threshold are parameters (not runtime inputs) because they are constants for a given neuron configuration. The Q-format values are computed at elaboration time.
 
 ---
 
@@ -55,13 +66,14 @@ Produces updated membrane potential and spike output.
 ### Mathematical Definition (Fixed-Point Integer)
 
 ```
+// BETA and THRESHOLD are module parameters (not runtime inputs)
 I_q     = i_current                                           // synaptic input
-V_q     = ((i_beta * i_membrane) >> FRAC_BITS) + I_q          // leak + integrate
+V_q     = ((BETA * membrane) >> FRAC_BITS) + I_q             // leak + integrate
 V_q     = CLAMP(V_q, MIN_VAL, MAX_VAL)                       // saturation
 
-if (V_q >= i_threshold) begin
+if (V_q >= THRESHOLD) begin
     SPIKE   = 1
-    V_q     = V_q - i_threshold                                // subtractive reset
+    V_q     = V_q - THRESHOLD                                  // subtractive reset
     V_q     = CLAMP(V_q, MIN_VAL, MAX_VAL)
 end else begin
     SPIKE   = 0
@@ -76,13 +88,13 @@ module lif_neuron_fxp #(
     parameter FRACTIONAL_BITS = 12,
     parameter TOTAL_BITS    = 16,
     parameter MAX_VAL       = 32767,
-    parameter MIN_VAL       = -32768
+    parameter MIN_VAL       = -32768,
+    parameter THRESHOLD     = 4096,
+    parameter BETA          = 3686
 ) (
     input  wire                      clk,
     input  wire                      rst_n,
     input  wire [TOTAL_BITS-1:0]     i_current,
-    input  wire [TOTAL_BITS-1:0]     i_beta,
-    input  wire [TOTAL_BITS-1:0]     i_threshold,
     input  wire                      i_valid,
     output reg                       o_spike,
     output reg  [TOTAL_BITS-1:0]     o_membrane,
@@ -114,9 +126,9 @@ module lif_neuron_fxp #(
                 end
 
                 COMPUTE: begin
-                    // 1. Leak: i_beta * membrane
-                    mult_temp = $signed(i_beta) * $signed(membrane);
-                    // Truncate fractional bits
+                    // 1. Leak: BETA * membrane (fixed-point multiply)
+                    mult_temp = $signed(BETA) * $signed(membrane);
+                    // Truncate fractional bits, add input current
                     membrane <= (mult_temp >>> FRACTIONAL_BITS) + $signed(i_current);
 
                     // 2. Overflow saturation
@@ -125,10 +137,10 @@ module lif_neuron_fxp #(
                     else if ($signed(membrane) < $signed(MIN_VAL))
                         membrane <= MIN_VAL;
 
-                    // 3. Spike + reset
-                    if ($signed(membrane) >= $signed(i_threshold)) begin
+                    // 3. Spike + subtractive reset
+                    if ($signed(membrane) >= $signed(THRESHOLD)) begin
                         o_spike <= 1'b1;
-                        membrane <= $signed(membrane) - $signed(i_threshold);
+                        membrane <= $signed(membrane) - $signed(THRESHOLD);
                     end else begin
                         o_spike <= 1'b0;
                     end
