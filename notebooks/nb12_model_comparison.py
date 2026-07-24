@@ -565,7 +565,8 @@ def select_pipeline(all_results: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Full Model Comparison — Notebook 12")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder", "all"], default="all")
+    parser.add_argument("--task", choices=["high-glucose", "all"], default="all",
+        help="Task to compare. high-glucose = 5-class primary benchmark. all = all available.")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     args = parser.parse_args()
 

@@ -243,7 +243,9 @@ def plot_bit_width_study(results: list[dict], task: str, out_dir: Path) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fixed-Point PMUT Inference — NB14")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--split", default="random_window")
     parser.add_argument("--window-size", type=int, default=128)
     args = parser.parse_args()

@@ -647,7 +647,9 @@ def run_modality_comparison(bundle, reservoir_params: dict, task: str, out_dir: 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="PMUT Reservoir Computing — Notebook 11")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--split", choices=["window", "random_window", "grouped"], default="random_window")
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)

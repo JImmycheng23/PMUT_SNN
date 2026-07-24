@@ -268,7 +268,9 @@ def run_baselines(task: str) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train feature-based ML baselines on PMUT data.")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     args = parser.parse_args()
     run_baselines(args.task)
     print("\nDone — Notebook 5 complete.")

@@ -420,7 +420,9 @@ def print_feature_summary(df: pd.DataFrame) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract PMUT physical features.")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     args = parser.parse_args()
 

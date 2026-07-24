@@ -211,7 +211,9 @@ class RawDataViewer(tk.Tk):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Open a Tkinter interface for PMUT raw sweep visualization.")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     return parser.parse_args()
 

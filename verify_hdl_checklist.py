@@ -56,7 +56,7 @@ def check(condition: bool, msg: str) -> bool:
 def check_1_file_integrity() -> dict:
     banner("CHECK 1: Test Vector File Integrity")
 
-    expected_tasks = ["high-glucose", "glucose-ladder"]
+    expected_tasks = ["high-glucose"]  # glucose-ladder removed from primary study
     expected_bws = ["16-bit", "12-bit"]
     expected_files = [
         "pmut_input_spikes.csv",
@@ -226,7 +226,7 @@ def check_2_roundtrip(summaries: dict) -> None:
 def check_3_cross_format(summaries: dict) -> None:
     banner("CHECK 3: Cross-Format Consistency (16-bit vs 12-bit)")
 
-    tasks = ["high-glucose", "glucose-ladder"]
+    tasks = ["high-glucose"]  # glucose-ladder removed from primary study
 
     for task in tasks:
         print(f"\n  --- {task} ---")
@@ -378,9 +378,8 @@ def check_4_bit_width_sensitivity() -> None:
 def check_5_pmut_accuracy() -> None:
     banner("CHECK 5: PMUT Fixed-Point Accuracy (NB14 Result Check)")
 
-    # Check high-glucose results
+    # Check high-glucose results only (glucose-ladder removed from primary study — Point 1)
     hg_file = FIXED_PT_DIR / "high-glucose" / "bit_width_study.json"
-    gl_file = FIXED_PT_DIR / "glucose-ladder" / "bit_width_study.json"
 
     # Reference values from Goal 4 report
     ref_hg = {
@@ -390,17 +389,9 @@ def check_5_pmut_accuracy() -> None:
         "8-bit Q3.4": 77.83,
         "4-bit Q1.2": 72.61,
     }
-    ref_gl = {
-        "float": 85.03,
-        "16-bit Q3.12": 88.02,
-        "12-bit Q3.8": 86.23,
-        "8-bit Q3.4": 77.84,
-        "4-bit Q1.2": 45.51,
-    }
 
     for task_name, json_file, ref in [
         ("high-glucose", hg_file, ref_hg),
-        ("glucose-ladder", gl_file, ref_gl),
     ]:
         print(f"\n  --- {task_name} ---")
         if not json_file.exists():

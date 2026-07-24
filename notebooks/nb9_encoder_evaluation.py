@@ -274,7 +274,9 @@ def plot_encoder_comparison(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate PMUT spike encoders.")
     parser.add_argument(
-        "--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose",
+        "--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.",
     )
     parser.add_argument(
         "--split", choices=["grouped", "window", "random_window"],

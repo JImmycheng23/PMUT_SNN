@@ -55,7 +55,9 @@ def extract_pmut_spike_example(bundle, neuron_idx: int = 0, n_steps: int = 50) -
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="HDL Test-Vector Generation — NB15")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--split", default="grouped")
     parser.add_argument("--window-size", type=int, default=128)
     parser.add_argument("--n-neurons", type=int, default=10, help="Number of LIF neurons for HDL testbench")

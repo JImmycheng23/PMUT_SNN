@@ -7,7 +7,9 @@ from src.pmut_models.data import build_dataset
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train PMUT SNN/CNN benchmark models.")
-    parser.add_argument("--task", choices=["high-glucose", "glucose-ladder"], default="high-glucose")
+    parser.add_argument("--task", choices=["high-glucose"], default="high-glucose",
+        help="Primary task: high-glucose (5-class, 50–1000 mM, 3 sweeps/class). "
+             "glucose-ladder retained in data.py for exploratory visualisation only.")
     parser.add_argument("--split", choices=["window", "random_window", "grouped"], default="window")
     parser.add_argument(
         "--model",

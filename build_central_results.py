@@ -69,7 +69,7 @@ for model_type, subdir in [('ESN', ''), ('LSM', 'lsm')]:
             )
 
 # ── NB5 Feature ML — Point 3/12 ──
-for task_name in ['high-glucose', 'glucose-ladder']:
+for task_name in ['high-glucose']:  # glucose-ladder removed from primary study (Point 1)
     csv_path = f'outputs/feature_ml/{task_name}_baseline_summary.csv'
     if os.path.exists(csv_path):
         import pandas as pd

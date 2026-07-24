@@ -183,6 +183,19 @@ def load_task_frame(task: str, data_root: Path = DEFAULT_DATA_ROOT) -> pd.DataFr
         high = load_high_glucose(data_root)
         return high[high["label"].str.startswith("Glucose")].copy()
     if task == "glucose-ladder":
+        # ⚠️ EXPLORATORY ONLY — NOT a primary benchmark.
+        #
+        # The 2–20 mM low-concentration data have only 1 physical sweep each,
+        # so sweep-level train/test separation is impossible. The 13-class
+        # "glucose-ladder" task is retained ONLY for exploratory visualisation:
+        # spectral plots, concentration-trend figures, PCA, reservoir-state
+        # trajectories, and identification of sensitive frequency regions.
+        #
+        # It must NOT contribute to main classification-accuracy claims until
+        # repeated independent sweeps are available for every concentration.
+        #
+        # For the primary quantitative study, use task="high-glucose" (5-class,
+        # 50–1000 mM, 3 sweeps/class) with split="grouped" (sweep-level holdout).
         high = load_high_glucose(data_root)
         low = load_low_glucose(data_root)
         high = high[high["label"].str.startswith("Glucose")].copy()
@@ -216,7 +229,7 @@ def encode_labels(labels: np.ndarray) -> tuple[np.ndarray, list[str]]:
     classes = sorted(set(labels.tolist()), key=_label_sort_key)
     lookup = {label: idx for idx, label in enumerate(classes)}
     return np.array([lookup[label] for label in labels], dtype=np.int64), classes
-
+## sorts the unique labels alphabetically
 
 def _label_sort_key(label: str) -> tuple[int, float | str]:
     match = re.search(r"Glucose\s+(\d+)", label)
@@ -224,7 +237,7 @@ def _label_sort_key(label: str) -> tuple[int, float | str]:
         return (1, float(match.group(1)))
     return (0, label)
 
-
+##Decides which windows go to training and which to testing
 def split_indices(labels: np.ndarray, groups: np.ndarray, split: str, test_every: int = 5) -> tuple[np.ndarray, np.ndarray]:
     if split == "window":
         train_idx = []
@@ -269,14 +282,14 @@ def split_indices(labels: np.ndarray, groups: np.ndarray, split: str, test_every
         return np.array(train_idx, dtype=np.int64), np.array(test_idx, dtype=np.int64)
     raise ValueError(f"Unknown split: {split}")
 
-
+##Computes z-score normalization 
 def standardize_from_train(x_train: np.ndarray, x_test: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     mean = x_train.reshape(-1, x_train.shape[-1]).mean(axis=0)
     std = x_train.reshape(-1, x_train.shape[-1]).std(axis=0)
     std[std == 0.0] = 1.0
     return (x_train - mean) / std, (x_test - mean) / std, mean, std
 
-
+##
 def build_dataset(
     task: str,
     split: str,
