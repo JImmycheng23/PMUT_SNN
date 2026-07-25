@@ -6,7 +6,7 @@ This file provides guidance to AI coding assistants (Claude, Kimi, OpenCode, Git
 
 PMUT (Piezoelectric Micromachined Ultrasonic Transducer) neuromorphic classification project. Classifies fluids from electrical impedance sweep data using spiking neural networks (SNN), reservoir computing (ESN/LSM), and conventional CNNs. Each sweep records four signal channels — `amplitude`, `phase`, `x_v` (in-phase/R), `y_v` (quadrature/X) — across a frequency ramp. The frequency axis is treated as a sequential spectral dimension (ordered from low to high frequency — NOT physical time).
 
-**Current best result:** LSM (Liquid State Machine, LIF reservoir) with membrane readout = **82.3%** on 5-class high-glucose (grouped), **84.4%** on 13-class glucose-ladder (window). LSM with membrane readout is the best neural model overall — beating CNN1D on both tasks. 16-bit fixed-point quantization preserves accuracy (observed improvements at 16-bit are within seed variance — readout is retrained at each bit width, see Point 16). Pipeline is HDL-ready. Pure task excluded (4 of 7 classes have only 1 sweep).
+**Current best result:** ESN (tanh reservoir) = **80.9%** and LSM (LIF reservoir, membrane readout) = **80.3%** on 5-class high-glucose (grouped). ESN and LSM achieve broadly similar performance on the primary benchmark (difference within seed variance). No model “beats” the others — different architectures trade off stability (ESN has lower variance) vs biological plausibility (LSM uses spike-based computation). 16-bit fixed-point quantization preserves accuracy (observed improvements at 16-bit are within seed variance — readout is retrained at each bit width, see Point 16). Pipeline is HDL-ready. Pure task excluded (4 of 7 classes have only 1 sweep).
 
 **Project status (2026-07-16): ALL 4 GOALS COMPLETE.** Goal 1 (data + classical baselines), Goal 2 (spike encoding + SNN), Goal 3 (reservoir + model comparison), Goal 4 (fixed-point + HDL).
 
@@ -231,13 +231,17 @@ Both reservoirs have **fixed random weights** — only the ridge regression read
 
 **Feature-based ML (cross-validated, sweep-level spectral-shape features, NOT comparable to window-level neural models):**
 
-⚠️ **Important (2026-07-21):** The PMUT in liquid-loaded Tx-Rx mode is heavily overdamped (Q_eff < 0.5). Classical single-resonance metrics (global-argmax f₀, BW, Q) are not well-defined. NB4 now extracts:
-- 4-band hybrid multi-peak features (0.2, 0.45, 0.9, 1.2 MHz modes; phase-based for deep mode, amplitude-based for higher modes)
-- Spectral shape features (centroid, variance, slopes, I/Q trajectory)
+⚠️ **Important (2026-07-24 — corrected):** The PMUT in liquid-loaded Tx-Rx mode is NOT heavily overdamped (Q_eff < 0.5 claim was an artifact — see below). The corrected local-band analysis (NB4, 2026-07-24) finds physically reasonable Q values: mode 2 Q = 63–176, mode 3 Q = 152–2075 across glucose concentrations. The PMUT in liquid is damped but classical resonance metrics are measurable with proper local-band analysis. NB4 now extracts:
+- 4-band local-band resonance features (local baseline removal, detrended half-power, crossings restricted to band, linear interpolation, NaN when no clean resonance)
+- Fallback features per band: band energy, spectral centroid, local amplitude slope, phase gradient, peak prominence
+- Full-band spectral shape features (centroid, variance, skewness, kurtosis, roll-off, slopes)
+- I/Q trajectory features (ellipse area, mean radius, phase spread)
+- Level features (mean, std, peak, AUC, noise floor)
+- Diagnostic band plots showing peak markers, half-power crossings, and band boundaries per sweep
 
 The old RF results (93.3%, 60.9%) used spurious global-argmax features. Results below use honest multi-peak + spectral shape features.
 
-*high-glucose (5-class, 3-fold stratified CV, 15 sweeps, 32 features):*
+*high-glucose (5-class, 3-fold stratified CV, 15 sweeps, 61 features):*
 | Model | CV Accuracy |
 |---|---|
 | Random Forest | 100.0% |
@@ -245,7 +249,7 @@ The old RF results (93.3%, 60.9%) used spurious global-argmax features. Results 
 | MLP | 80.0% |
 | SVM (Linear) | 80.0% |
 
-*glucose-ladder (13-class, leave-one-out CV, 23 sweeps, 32 features):*
+*glucose-ladder (13-class, leave-one-out CV, 23 sweeps, 61 features):*
 | Model | CV Accuracy |
 |---|---|
 | Random Forest | 52.2% |
@@ -253,7 +257,7 @@ The old RF results (93.3%, 60.9%) used spurious global-argmax features. Results 
 | SVM (Linear) | 47.8% |
 | MLP | 47.8% |
 
-Top RF features for high-glucose: f0_b2_hz (0.45 MHz mode frequency), amp_mean, q_b2, amp_b3 (0.9 MHz mode amplitude) — physically meaningful multi-peak features. 15 sweeps with 32 features risks overfitting; RF's 100% on high-glucose may reflect this — the primary results remain window-level neural models.
+Top RF features for high-glucose: f0_b2_hz (0.45 MHz mode frequency), amp_mean, q_b2, amp_b3 (0.9 MHz mode amplitude) — physically meaningful multi-peak features. 15 sweeps with 61 features risks overfitting; RF's 100% on high-glucose may reflect this — the primary results remain window-level neural models.
 
 ⚠️ Previous reports of 100% accuracy for RF/MLP were caused by a data-leakage bug (training and testing on identical samples in nb5, lines 163-165). Fixed 2026-07-20 — metrics now use `cross_val_predict`. Additionally, pre-2026-07-21 NB4 used `argmax(amplitude)` which picked up sweep boundaries as spurious "resonance" features.
 
@@ -270,7 +274,7 @@ Top RF features for high-glucose: f0_b2_hz (0.45 MHz mode frequency), amp_mean, 
 | high-glucose (5-class, grouped) | 80.43% ± 0.61% | 82.32% ± 2.36% | **82.46%** ± 2.36% | **+1.89%** |
 | glucose-ladder (13-class, window) | 75.05% ± 0.56% | **84.43%** ± 0.49% | 81.64% ± 0.28% | **+9.38%** |
 
-**LSM with membrane readout is the best neural model.** It beats the CNN1D on both tasks. On glucose-ladder, the LSM (+11.3 pp over ESN) demonstrates the power of spiking reservoir dynamics for hard multi-class sequential spectral classification.
+**ESN and LSM perform similarly on the primary 5-class benchmark** (ESN 80.9% ± 0.4%, LSM membrane 80.3% ± 1.4% — difference within seed variance). ESN has lower variance; LSM offers spike-based computation for neuromorphic hardware. On the now-removed 13-class glucose-ladder, LSM showed stronger advantage (+11 pp over ESN), but that task used within-sweep evaluation on single-sweep classes and is no longer a primary result.
 
 **Why LSM > ESN:**
 1. **Sparse coding** — LIF neurons fire only on threshold crossing; tanh neurons are always active
@@ -279,7 +283,7 @@ Top RF features for high-glucose: f0_b2_hz (0.45 MHz mode frequency), amp_mean, 
 
 **Input modality ablation (reservoir):** Amplitude alone often beats amplitude+phase. Phase adds noise for concentration-based classification tasks.
 
-**Pipeline selected for hardware:** LSM (LIF, membrane readout) — best accuracy, LIF neurons map directly to neuromorphic hardware.
+**Pipeline selected for hardware:** LSM (LIF, membrane readout) — spiking neurons map directly to neuromorphic hardware. ESN (tanh) provides equivalent accuracy with lower variance on the primary benchmark.
 
 ### Goal 4: Fixed-point + HDL (2026-07-15)
 
@@ -323,7 +327,7 @@ Top RF features for high-glucose: f0_b2_hz (0.45 MHz mode frequency), amp_mean, 
 - Latency coding outperforms rate coding for spike-based hardware efficiency.
 - **Reservoir models (especially LSM) dominate on hard tasks with many classes** — use them when CNN/SNN struggle.
 - **16-bit Q3.12 is the recommended fixed-point format** — zero accuracy loss, standard FPGA DSP blocks.
-- Feature-based ML uses sweep-level spectral shape features (20 spectral/shape features + 12 multi-peak features = 32 total) and should not be directly compared to window-level neural models. RF achieves 100.0% CV on high-glucose (caution: 15 sweeps × 32 features risks overfitting), 52.2% on glucose-ladder. The PMUT in liquid is heavily overdamped — classical resonance metrics (f₀, BW, Q) are not used; instead 4-band hybrid multi-peak features track individual PMUT modes. Previous 100% claims (2026-07-20) were caused by train-on-test leakage; previous f₀/BW/Q values were boundary artifacts from global argmax (fixed 2026-07-21).
+- Feature-based ML uses sweep-level spectral shape features (20 spectral/shape features + 12 multi-peak features = 32 total) and should not be directly compared to window-level neural models. RF achieves 100.0% CV on high-glucose (caution: 15 sweeps × 61 features risks overfitting), 52.2% on glucose-ladder. The PMUT in liquid is heavily overdamped — classical resonance metrics (f₀, BW, Q) are not used; instead 4-band hybrid multi-peak features track individual PMUT modes. Previous 100% claims (2026-07-20) were caused by train-on-test leakage; previous f₀/BW/Q values were boundary artifacts from global argmax (fixed 2026-07-21).
 
 ## Output directory map
 
@@ -367,13 +371,30 @@ outputs/
 
 ## Session log
 
+### 2026-07-25
+- **Fixed Point 7 (review):** Completed comprehensive encoder→SNN diagnosis covering all 7 sub-points:
+  [1] All five NB8 encoders tested (rate/latency/threshold/delta/population).
+  [2] Amplitude-only vs amplitude+phase compared per encoder.
+  [3] Per-sample sparsity measured: rate=14.8% dense, latency=2.0% (too sparse), delta=86% silent steps.
+  [4] Timing preservation: rate shuffle_corr=0.01 (frequency ordering DESTROYED by Poisson noise); latency autocorr=0.90 (preserves structure but too sparse).
+  [5] Full tensor dimension pipeline traced: (n_windows, n_steps, n_features) verified at every stage.
+  [6] Confirmed SNN receives binary spike TRAINS (not statistical aggregates).
+  [7] Information content: MI≈0, LR=25% (chance) for ALL encoders — mean spike count carries zero class-discriminative information.
+  **Tested all-4-channel encoding (A,φ,x_v,y_v → 512 features):** test accuracy 30.9% vs 25.2% amp-only — marginal gain, severe overfitting (100% train by epoch 30). The bottleneck is binary encoding, not channel count.
+  **Final verdict:** The ~3× gap vs CNN1D (~84%) is a FUNDAMENTAL information-loss problem. Binary spike conversion + hand-designed encoding + single LIF layer cannot recover the fine amplitude variations (<5%) that discriminate glucose concentrations. This is an honest negative result — the explicit-encoder pipeline is functional (beats chance by 10–12 pp) but is not competitive with continuous-input models. Documented in CLAUDE.md and RESPONSE_TO_SUPERVISOR_REVIEW.md.
+
+### 2026-07-24
+- **Fixed Point 1 (review):** Removed low-concentration ladder (2–20 mM) from primary classification. The 5-class high-glucose (50–1000 mM) is now the sole primary benchmark. glucose-ladder retained in data.py for exploratory visualisation only with prominent warning docstring. Updated --task choices in 11 scripts.
+- **Fixed Point 2 (review):** Clean freeze. All legacy outputs moved to outputs_legacy/. Fresh outputs/ for regeneration. Created REPRODUCIBILITY.md with frozen commit hash (5f58f06, tag v2.0-clean-slate), data file MD5 checksums, and exact regeneration commands.
+- **Fixed Point 3 (review):** Corrected PMUT bandwidth/Q extraction in NB4. The previous Q < 0.5 values were artifacts of searching half-power crossings on raw amplitude with default full-sweep fallback (left=0, right=n-1). New local-band method: (1) local baseline removal within each mode band, (2) peak detection on detrended signal via prominence, (3) half-power computed on detrended signal, (4) crossing search restricted to local band with linear interpolation, (5) NaN sentinel when no clean resonance. Added fallback features per band (energy, centroid, slope, phase gradient, prominence), full-band spectral shape features (centroid, variance, skewness, kurtosis, roll-off, slopes), I/Q trajectory features (ellipse area, mean radius, phase spread), and diagnostic band plots. Honest Q values: mode 2 Q = 63–176, mode 3 Q = 152–2075. Feature count increased from 32 to 61. The previously claimed "heavily overdamped" conclusion was wrong — it was an artifact of the extraction method.
+
 ### 2026-07-21 (continued)
 - **Built encoder→SNN pipeline (connection was missing):** The assignment intended PMUT → encoder → SNN, but the codebase had two disconnected pipelines. Added `EncodedSpikeSNN` model to `spiking.py` (processes pre-encoded spike trains through LIF neurons), `encode_dataset_bundle()` to `train_utils.py` (wraps NB8 encoders around DatasetBundle), and `--encode` flag to `train.py`. The pipeline is now functional: `python train.py --model encoded_spike_snn --encode rate`. Results on high-glucose (grouped, win=128, 150ep, 3 seeds): rate→SNN **32.5% ± 1.1%**, latency→SNN **31.7% ± 1.3%**, delta→SNN 28.3% ± 0.4% (chance=20%). The ~3× gap vs continuous CNN1D (89.8%) is the cost of explicit encoding + single-channel input. Updated CLAUDE.md pipeline section, common commands, and key results.
 
 ### 2026-07-21
 - **Fixed critical data-leakage bug in NB9 (spike encoder evaluation):** Same class of bug as NB5 — `fit(X, y); predict(X)` on identical data. Rewrote to use `split_indices()` for physical-sweep-level train/test separation. Honest results: high-glucose delta 40%, latency 20%; glucose-ladder rate/delta 15.4%. Updated GOAL_1_2_COMPLETION_REPORT.md NB9 section.
 - **Clarified two distinct spiking approaches in documentation:** The project has TWO independent spiking pipelines, not a single "PMUT → encoder → SNN" chain. **(A) Explicit spike encoding** (NB8/NB9): PMUT amp → hand-designed encoder (rate/latency/delta/etc.) → spike trains → aggregate features → LR. Answers "what encoding preserves class info?" for neuromorphic front-end design. **(B) Learned spiking network** (train.py, spiking.py, reservoir.py): continuous PMUT [A,φ,x_v,y_v] → trainable projection → LIF dynamics (internal spikes) → classification. Answers "can a spiking network classify PMUT sweeps end-to-end?" The two are completely independent — `train.py` does not import NB8 encoders. Updated CLAUDE.md Models section and GOAL_1_2_COMPLETION_REPORT.md with comparison table. The earlier characterization of an encoder "feeding into" the SNN was incorrect.
-- **Fixed critical resonance extraction bug in NB4:** The global `argmax(amplitude)` was picking up sweep boundary artifacts (100 kHz or 2.5 MHz) rather than genuine PMUT resonances. Investigation revealed the PMUT in liquid-loaded Tx-Rx mode is heavily overdamped (Q_eff < 0.5): amplitude varies only 2-5%, phase varies only 4-9° across the full sweep, y_v (quadrature/X) never crosses zero for most concentrations. Classical single-resonance metrics (f₀, BW, Q) are not well-defined for this regime.
+- **Fixed critical resonance extraction bug in NB4:** The global `argmax(amplitude)` was picking up sweep boundary artifacts (100 kHz or 2.5 MHz) rather than genuine PMUT resonances. Investigation revealed the PMUT in liquid-loaded Tx-Rx mode is moderately damped: amplitude varies 2-5%, phase varies 4-9° across the full sweep, y_v (quadrature/X) never crosses zero for most concentrations. The initial Q_eff < 0.5 finding was later determined (2026-07-24) to be an artifact of buggy bandwidth extraction (half-power crossings defaulting to full sweep width). Corrected local-band analysis yields physically reasonable Q values (mode 2: 63–176, mode 3: 152–2075).
 - **Replaced spurious features with spectral shape + banded multi-peak features:** NB4 now extracts 51 features including:
   - 4-band hybrid multi-peak features (0.2, 0.45, 0.9, 1.2 MHz PMUT modes)
   - Phase-based detection for the deep damped 0.2 MHz mode; amplitude-based detection for higher-Q modes at 0.45-1.2 MHz
@@ -392,6 +413,6 @@ outputs/
 
 ### 2026-07-19
 - Session start. Project state: all 4 goals complete as of 2026-07-16.
-- LSM with membrane readout = best model (82.3% high-glucose, 84.4% glucose-ladder). Pure task excluded.
+- ESN and LSM perform similarly on 5-class high-glucose (ESN 80.9%, LSM 80.3%). LSM advantage was previously overstated due to hardcoded numbers; actual saved metrics show them tied within seed variance. Pure task excluded.
 - 16-bit Q3.12 fixed-point is HDL-ready.
 - No code changes — context loading only.

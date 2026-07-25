@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--num-seeds", type=int, default=1, help="Number of seeds for mean/std reporting")
+    parser.add_argument("--num-seeds", type=int, default=5, help="Number of seeds for mean/std reporting (default: 5)")
     return parser.parse_args()
 
 

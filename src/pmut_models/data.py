@@ -209,6 +209,118 @@ def load_task_frame(task: str, data_root: Path = DEFAULT_DATA_ROOT) -> pd.DataFr
     raise ValueError(f"Unknown task: {task}")
 
 
+def validate_phase_data(frame: pd.DataFrame, window_size: int = 128) -> dict:
+    """Audit phase preprocessing for correctness (Review Point 9).
+
+    Checks across all sweeps in the frame:
+      1. Phase units (degrees vs radians) — warns if values in [-pi, pi] range
+      2. Phase wrapping: counts ±180° discontinuities within a sliding window
+      3. Sign convention: verifies x_v ≈ amplitude·cos(phase), y_v ≈ amplitude·sin(phase)
+      4. Discontinuity count per window: flags windows containing wraps
+
+    Returns a dict with wrapped_windows, sign_errors, and summary statistics.
+    """
+    n_total = len(frame)
+    results = {
+        "n_total_points": n_total,
+        "phase_range": (float(frame["phase"].min()), float(frame["phase"].max())),
+        "wrapped_windows": 0,
+        "total_windows": 0,
+        "sign_errors_x": 0,
+        "sign_errors_y": 0,
+        "summary": "",
+    }
+
+    # 1. Phase unit check
+    pmin, pmax = results["phase_range"]
+    if -4.0 < pmin < 4.0 and -4.0 < pmax < 4.0:
+        results["summary"] += (
+            f"WARNING: Phase range [{pmin:.2f}, {pmax:.2f}] looks like RADIANS. "
+            f"Expected degrees for this dataset.\n"
+        )
+    elif abs(pmin) < 200 and abs(pmax) < 200:
+        results["summary"] += (
+            f"Phase range [{pmin:.1f}, {pmax:.1f}] degrees — looks correct.\n"
+        )
+    else:
+        results["summary"] += (
+            f"Phase range [{pmin:.1f}, {pmax:.1f}] — unexpected range.\n"
+        )
+
+    # 2 + 4. Per-sweep wrapping check
+    for (source, sweep_key), group in frame.groupby(["source", "sweep_key"], sort=False):
+        group = group.sort_values("frequency_hz").reset_index(drop=True)
+        phase = group["phase"].to_numpy(dtype=float)
+        amp = group["amplitude"].to_numpy(dtype=float)
+        xv = group["x_v"].to_numpy(dtype=float)
+        yv = group["y_v"].to_numpy(dtype=float)
+        n = len(phase)
+
+        # 2. Detect phase wraps within sliding windows of size `window_size`
+        if n >= window_size:
+            stride = window_size  # non-overlapping
+            n_wins = (n - window_size) // stride + 1
+            for w in range(n_wins):
+                start = w * stride
+                end = start + window_size
+                win_phase = phase[start:end]
+
+                # Check for ±180° discontinuities (wrap detection)
+                diffs = np.abs(np.diff(win_phase))
+                wraps = int(np.sum(diffs > 300))  # >300° jump = likely wrap
+                results["total_windows"] += 1
+                if wraps > 0:
+                    results["wrapped_windows"] += 1
+
+        # 3. Sign convention: x_v should be approx amplitude * cos(phase_rad)
+        phase_rad = np.deg2rad(phase)
+        x_expected = amp * np.cos(phase_rad)
+        y_expected = amp * np.sin(phase_rad)
+
+        x_error = np.abs(xv - x_expected)
+        mean_x_err = float(np.mean(x_error))
+        if mean_x_err > amp.mean() * 0.1:  # >10% of mean amplitude
+            results["sign_errors_x"] += 1
+
+        y_error = np.abs(yv - y_expected)
+        mean_y_err = float(np.mean(y_error))
+        if mean_y_err > amp.mean() * 0.1:
+            results["sign_errors_y"] += 1
+
+    # Build summary
+    frac_wrapped = results["wrapped_windows"] / max(results["total_windows"], 1)
+    results["summary"] += (
+        f"Windows: {results['total_windows']} total, "
+        f"{results['wrapped_windows']} with phase wraps "
+        f"({frac_wrapped*100:.1f}%)\n"
+    )
+    results["summary"] += (
+        f"Sign errors: {results['sign_errors_x']} X, {results['sign_errors_y']} Y "
+        f"(sweeps where |measured - A·cos/sin(φ)| > 10% of mean amp)\n"
+    )
+
+    if frac_wrapped > 0.1:
+        results["summary"] += (
+            "WARNING: >10% of windows contain phase wraps. "
+            "These appear as step-function artifacts to CNN/LSM models.\n"
+        )
+    if results["sign_errors_x"] > 0 or results["sign_errors_y"] > 0:
+        results["summary"] += (
+            "WARNING: x_v/y_v sign convention mismatch detected. "
+            "Check whether x/y columns are direct measurements or reconstructed from polar.\n"
+        )
+    if frac_wrapped <= 0.1 and results["sign_errors_x"] == 0 and results["sign_errors_y"] == 0:
+        results["summary"] += "Phase preprocessing: ALL CHECKS PASSED.\n"
+
+    print("\n" + "=" * 60)
+    print("PHASE PREPROCESSING AUDIT (Review Point 9)")
+    print("=" * 60)
+    print(results["summary"])
+    print("=" * 60)
+
+    return results
+
+
 def make_sequence_samples(frame: pd.DataFrame, window_size: int, stride: int | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     if stride is None:
         stride = window_size  # non-overlapping windows by default
@@ -343,6 +455,120 @@ def build_dataset(
         val_groups=tg_val,
         metadata=metadata,
     )
+
+
+def build_dataset_folds(
+    task: str,
+    data_root: Path = DEFAULT_DATA_ROOT,
+    window_size: int = 256,
+    stride: int | None = None,
+) -> list[DatasetBundle]:
+    """Build 3-fold sweep-level rotation for high-glucose grouped split.
+
+    Each concentration (class) has exactly 3 physical sweeps. This function
+    produces 3 folds where train/validation/test each contain windows from a
+    DIFFERENT sweep — NO leakage between splits at the physical-sweep level.
+
+      Fold 0: train=sweep1, val=sweep2, test=sweep3
+      Fold 1: train=sweep2, val=sweep3, test=sweep1
+      Fold 2: train=sweep3, val=sweep1, test=sweep2
+
+    Normalization is fitted on training windows only per fold, then applied to
+    val and test. This prevents the final result from depending on which sweep
+    was arbitrarily chosen as the test acquisition.
+
+    Returns a list of 3 DatasetBundle objects, one per fold.
+    """
+    frame = load_task_frame(task, data_root)
+    x, raw_labels, groups = make_sequence_samples(frame, window_size=window_size, stride=stride)
+    y, labels = encode_labels(raw_labels)
+
+    # Identify sweep keys per class, sorted for deterministic rotation
+    class_sweeps: dict[str, list[str]] = {}
+    for label_name in labels:
+        idx = np.where(raw_labels == label_name)[0]
+        sweeps = sorted(set(groups[idx].tolist()))
+        class_sweeps[label_name] = sweeps
+
+    # Verify every class has exactly 3 sweeps (required for 3-fold rotation)
+    for label_name, sweeps in class_sweeps.items():
+        if len(sweeps) != 3:
+            raise ValueError(
+                f"build_dataset_folds requires exactly 3 sweeps per class. "
+                f"Class '{label_name}' has {len(sweeps)} sweeps: {sweeps}. "
+                f"Use build_dataset() for non-3-sweep tasks."
+            )
+
+    folds: list[DatasetBundle] = []
+    # Rotation patterns: (train_sweep, val_sweep, test_sweep) per fold
+    rotations = [(0, 1, 2), (1, 2, 0), (2, 0, 1)]
+
+    for fold_idx, (ti, vi, tsti) in enumerate(rotations):
+        train_idx: list[int] = []
+        val_idx: list[int] = []
+        test_idx: list[int] = []
+
+        for label_name in labels:
+            idx = np.where(raw_labels == label_name)[0]
+            sweeps = class_sweeps[label_name]
+
+            train_sweep = sweeps[ti]
+            val_sweep = sweeps[vi]
+            test_sweep = sweeps[tsti]
+
+            train_idx.extend(idx[groups[idx] == train_sweep].tolist())
+            val_idx.extend(idx[groups[idx] == val_sweep].tolist())
+            test_idx.extend(idx[groups[idx] == test_sweep].tolist())
+
+        # Normalize: fit on training windows only
+        x_train_full = x[np.array(train_idx, dtype=np.int64)]
+        x_val_raw = x[np.array(val_idx, dtype=np.int64)]
+        x_test_raw = x[np.array(test_idx, dtype=np.int64)]
+        y_train_full = y[np.array(train_idx, dtype=np.int64)]
+        y_val = y[np.array(val_idx, dtype=np.int64)]
+        y_test = y[np.array(test_idx, dtype=np.int64)]
+
+        mean = x_train_full.reshape(-1, x_train_full.shape[-1]).mean(axis=0)
+        std = x_train_full.reshape(-1, x_train_full.shape[-1]).std(axis=0)
+        std[std == 0.0] = 1.0
+
+        x_train_norm = (x_train_full - mean) / std
+        x_val_norm = (x_val_raw - mean) / std
+        x_test_norm = (x_test_raw - mean) / std
+
+        metadata = {
+            "task": task,
+            "split": "grouped_folds",
+            "fold": fold_idx,
+            "train_sweeps": [class_sweeps[lb][ti] for lb in labels],
+            "val_sweeps": [class_sweeps[lb][vi] for lb in labels],
+            "test_sweeps": [class_sweeps[lb][tsti] for lb in labels],
+            "window_size": window_size,
+            "stride": stride or window_size,
+            "n_samples": int(len(x)),
+            "n_train": len(train_idx),
+            "n_val": len(val_idx),
+            "n_test": len(test_idx),
+            "normalization_mean": mean.tolist(),
+            "normalization_std": std.tolist(),
+        }
+
+        folds.append(DatasetBundle(
+            x_train=x_train_norm.astype(np.float32),
+            y_train=y_train_full,
+            x_val=x_val_norm.astype(np.float32),
+            y_val=y_val,
+            x_test=x_test_norm.astype(np.float32),
+            y_test=y_test,
+            labels=labels,
+            channels=SIGNAL_COLUMNS,
+            train_groups=groups[np.array(train_idx, dtype=np.int64)],
+            test_groups=groups[np.array(test_idx, dtype=np.int64)],
+            val_groups=groups[np.array(val_idx, dtype=np.int64)],
+            metadata=metadata,
+        ))
+
+    return folds
 
 
 def save_dataset(bundle: DatasetBundle, output_path: Path) -> None:

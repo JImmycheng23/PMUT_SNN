@@ -465,12 +465,19 @@ def generate_hdl_test_vectors(
 
     for t in range(n_steps):
         # Current: I = W_in @ s_in[t] + bias
+        # Binary spike = gate — NO rescaling. W_in_q is ALREADY Q-format.
+        # A spike of 1 delivers the full Q-format weight directly.
+        # (Fixed per Review Point 14: the old dot // 2**frac_bits
+        #  attenuated the input contribution by 4096× for Q3.12.)
         s_in_q = input_spikes[t].astype(np.int64)
         I_q = bias_q.copy()
         for j in range(n_neurons):
-            dot = np.sum(W_in_q[j].astype(np.int64) * s_in_q)
+            dot = np.int64(0)
+            for i in range(n_input):
+                if s_in_q[i]:
+                    dot += W_in_q[j, i]  # direct Q-format addition
             I_q[j] = np.clip(
-                I_q[j] + (dot // (2 ** qfmt.fractional_bits)),
+                I_q[j] + dot,
                 qfmt.min_val * qfmt.scale // 1,
                 qfmt.max_val * qfmt.scale // 1,
             ).astype(np.int64)
@@ -576,3 +583,290 @@ def save_hdl_test_vectors(test_data: dict, output_dir: Path) -> None:
     print(f"    expected_voltage_q.csv  : {n_steps} steps × {n_neurons} neurons (Q-format)")
     print(f"    expected_spikes.csv     : {n_steps} steps × {n_neurons} neurons")
     print(f"    params.json             : Q-format config + neuron params")
+
+
+# ---------------------------------------------------------------------------
+# IntegerLSM — true fixed-point LSM with quantized readout (Review Point 11)
+# ---------------------------------------------------------------------------
+
+class IntegerLSM:
+    """Liquid State Machine using INTEGER arithmetic throughout.
+
+    Unlike the FixedPointLIF (single non-recurrent neuron) and NB14's
+    float-roundtrip quantisation, this model operates ENTIRELY in integer
+    arithmetic — no float casts in the forward pass. This is the model that
+    maps 1:1 to Verilog HDL.
+
+    Update rule (all Q-format integers):
+      I_q   = clip(W_in_q @ x_q + W_res_q @ s_q + bias_q)
+      v_q   = clip((beta_q * v_q) >> FRAC + I_q)
+      s_q   = (v_q >= threshold_q)
+      v_q   = v_q - s_q * threshold_q    [subtractive reset]
+
+    Readout (quantized):
+      score = W_out_q @ features_q + bias_out_q    [integer dot product]
+      pred  = argmax(score)
+
+    Hardware-relevant specifications:
+      - Multiplier width: 2 × TOTAL_BITS (product of two Q-format values)
+      - Accumulator width: 2 × TOTAL_BITS + ceil(log2(n_input)) for dot product
+      - Rescaling: arithmetic right-shift by FRACTIONAL_BITS after multiply
+      - Rounding mode: truncation (floor toward negative infinity for signed)
+      - Overflow behaviour: saturation to [MIN_VAL, MAX_VAL] on every operation
+      - Reset behaviour: subtractive (v_q -= threshold_q on spike), clamped ≥ MIN_VAL
+      - Saturation vs wraparound: SATURATION — values clip to range, never wrap
+
+    Parameters
+    ----------
+    qfmt : QFormat for weights and membrane.
+    n_input, n_reservoir, n_classes : dimensions.
+    beta, threshold : float — quantized on init.
+    input_scaling, spectral_radius, sparsity : reservoir params.
+    seed : int.
+    """
+
+    def __init__(
+        self,
+        qfmt: QFormat,
+        n_input: int = 4,
+        n_reservoir: int = 300,
+        n_classes: int = 5,
+        beta: float = 0.9,
+        threshold: float = 1.0,
+        spectral_radius: float = 0.95,
+        sparsity: float = 0.9,
+        input_scaling: float = 1.0,
+        exc_ratio: float = 0.8,
+        seed: int = 42,
+    ):
+        self.qfmt = qfmt
+        self.n_input = n_input
+        self.n_reservoir = n_reservoir
+        self.n_classes = n_classes
+        self.frac = qfmt.fractional_bits
+        self.scale = int(qfmt.scale)
+
+        # Quantize constants
+        self.beta_q = int(float_to_fixed(beta, qfmt))
+        self.threshold_q = int(float_to_fixed(threshold, qfmt))
+
+        rng = np.random.RandomState(seed)
+
+        # Input weights
+        W_in_f = rng.uniform(-input_scaling, input_scaling, (n_reservoir, n_input)).astype(np.float64)
+        self.W_in_q = float_to_fixed(W_in_f, qfmt).astype(np.int64)
+
+        # Recurrent weights with Dale's law
+        W_res_f = rng.randn(n_reservoir, n_reservoir).astype(np.float64)
+        mask = rng.rand(n_reservoir, n_reservoir) < (1.0 - sparsity)
+        W_res_f[mask] = 0.0
+        neuron_type = np.ones(n_reservoir, dtype=np.float64)
+        n_exc = int(n_reservoir * exc_ratio)
+        neuron_type[n_exc:] = -1.0
+        rng.shuffle(neuron_type)
+        W_res_f = W_res_f * neuron_type[np.newaxis, :]
+        eig_max = max(abs(np.linalg.eigvals(W_res_f)))
+        if eig_max > 1e-10:
+            W_res_f *= spectral_radius / eig_max
+        self.W_res_q = float_to_fixed(W_res_f, qfmt).astype(np.int64)
+
+        # Bias
+        bias_f = rng.uniform(0.0, 0.3, n_reservoir).astype(np.float64)
+        self.bias_q = float_to_fixed(bias_f, qfmt).astype(np.int64)
+
+        # Readout (trained later, quantized after fitting)
+        self.W_out_q: np.ndarray | None = None
+        self.bias_out_q: np.ndarray | None = None
+
+        # State
+        self._v_q: np.ndarray | None = None
+        self._s_q: np.ndarray | None = None
+
+    def reset(self) -> None:
+        self._v_q = np.zeros(self.n_reservoir, dtype=np.int64)
+        self._s_q = np.zeros(self.n_reservoir, dtype=np.int64)
+
+    def process_sequence(self, x: np.ndarray, warmup: int = 10) -> dict:
+        """Process a continuous-valued sweep through the integer LSM.
+
+        Parameters
+        ----------
+        x : ndarray of shape (seq_len, n_input) in FLOAT (will be quantized per step)
+
+        Returns
+        -------
+        dict with 'membrane_q' and 'spikes_q' (integer arrays, shape (seq_len-warmup, n_reservoir))
+        """
+        if x.ndim == 1:
+            x = x.reshape(-1, self.n_input)
+        seq_len = x.shape[0]
+        self.reset()
+
+        membranes = np.zeros((seq_len, self.n_reservoir), dtype=np.int64)
+        spikes_all = np.zeros((seq_len, self.n_reservoir), dtype=np.int64)
+
+        for t in range(seq_len):
+            # Quantize input
+            x_q = float_to_fixed(x[t], self.qfmt).astype(np.int64)
+
+            # Synaptic current: I = W_in @ x + W_res @ s + bias
+            I_q = self.bias_q.copy()
+            # Input contribution
+            for j in range(self.n_reservoir):
+                dot_in = 0
+                for i in range(self.n_input):
+                    dot_in += int(self.W_in_q[j, i]) * int(x_q[i])
+                I_q[j] += dot_in >> self.frac
+
+            # Recurrent contribution
+            for j in range(self.n_reservoir):
+                dot_res = 0
+                for k in range(self.n_reservoir):
+                    if self._s_q[k]:
+                        dot_res += int(self.W_res_q[j, k])
+                I_q[j] += dot_res
+
+            # Clamp current
+            I_q = np.clip(I_q, self.qfmt.min_val * self.scale, self.qfmt.max_val * self.scale)
+
+            # Membrane update: v = (beta * v) >> frac + I
+            # Use Python int for multiplication to avoid overflow, then shift
+            v_new = np.zeros(self.n_reservoir, dtype=np.int64)
+            for j in range(self.n_reservoir):
+                leak = int(self.beta_q) * int(self._v_q[j]) >> self.frac
+                v_new[j] = leak + int(I_q[j])
+            v_new = np.clip(v_new, self.qfmt.min_val * self.scale, self.qfmt.max_val * self.scale)
+
+            # Spike
+            s_new = (v_new >= self.threshold_q).astype(np.int64)
+
+            # Reset
+            v_new = v_new - s_new * self.threshold_q
+            v_new = np.clip(v_new, self.qfmt.min_val * self.scale, self.qfmt.max_val * self.scale)
+
+            self._v_q = v_new
+            self._s_q = s_new
+            membranes[t] = v_new
+            spikes_all[t] = s_new
+
+        if warmup > 0:
+            membranes = membranes[warmup:]
+            spikes_all = spikes_all[warmup:]
+
+        return {"membrane_q": membranes, "spikes_q": spikes_all}
+
+    def collect_features(
+        self, x: np.ndarray, warmup: int = 10,
+        state_mode: str = "membrane", state_reduction: str = "mean",
+    ) -> np.ndarray:
+        """Run all samples through LSM, reduce to integer feature vectors.
+
+        Parameters
+        ----------
+        x : ndarray of shape (n_samples, seq_len, n_input) in FLOAT
+        state_mode : 'membrane' or 'spikes'
+        state_reduction : 'mean' or 'last'
+
+        Returns
+        -------
+        features : ndarray of shape (n_samples, n_reservoir) in Q-format int64
+        """
+        n_samples = x.shape[0]
+        feat_dim = self.n_reservoir * (2 if state_mode == "both" else 1)
+        features = np.zeros((n_samples, feat_dim), dtype=np.int64)
+
+        for i in range(n_samples):
+            result = self.process_sequence(x[i], warmup=warmup)
+            if state_mode == "membrane":
+                states = result["membrane_q"]
+            elif state_mode == "spikes":
+                states = result["spikes_q"]
+            else:  # both
+                states = np.concatenate([result["membrane_q"], result["spikes_q"]], axis=1)
+
+            if state_reduction == "mean":
+                feat = states.mean(axis=0).round().astype(np.int64)
+            else:  # last
+                feat = states[-1].astype(np.int64)
+            features[i] = feat
+
+        return features
+
+    def fit_readout(
+        self, x_train: np.ndarray, y_train: np.ndarray,
+        warmup: int = 10, state_mode: str = "membrane",
+        state_reduction: str = "mean", alpha: float = 1.0,
+    ) -> float:
+        """Fit a FLOAT Ridge readout, then QUANTIZE weights to Q-format.
+
+        This is the honest procedure:
+          1. Fit Ridge in float (to find optimal weights)
+          2. Quantize the weights for integer inference
+          3. Report BOTH float-readout and quantized-readout accuracy
+
+        Returns float-readout training accuracy. Quantized readout accuracy
+        is available via .quantized_readout_accuracy.
+        """
+        from sklearn.linear_model import RidgeClassifier
+
+        features_q = self.collect_features(x_train, warmup=warmup, state_mode=state_mode, state_reduction=state_reduction)
+        # Convert to float for sklearn fitting
+        features_f = fixed_to_float(features_q, self.qfmt)
+
+        self.readout = RidgeClassifier(alpha=alpha)
+        self.readout.fit(features_f, y_train)
+
+        # ── Quantize the readout ──
+        W_out_f = self.readout.coef_.astype(np.float64)  # (n_classes, n_features)
+        bias_out_f = self.readout.intercept_.astype(np.float64)  # (n_classes,)
+
+        self.W_out_q = float_to_fixed(W_out_f, self.qfmt).astype(np.int64)
+        self.bias_out_q = float_to_fixed(bias_out_f, self.qfmt).astype(np.int64)
+
+        # Compute quantized-readout accuracy on training data
+        self.quantized_readout_accuracy = float(self._score_quantized(features_q, y_train))
+
+        train_acc = float(self.readout.score(features_f, y_train))
+        print(f"  IntegerLSM fit: float_train={train_acc:.4f}  quantized_train={self.quantized_readout_accuracy:.4f}")
+        return train_acc
+
+    def _score_quantized(self, features_q: np.ndarray, y: np.ndarray) -> float:
+        """Score using PURE INTEGER dot-product readout — no float casts."""
+        correct = 0
+        for i in range(len(features_q)):
+            scores = np.zeros(self.n_classes, dtype=np.int64)
+            for c in range(self.n_classes):
+                dot = 0
+                for j in range(len(features_q[i])):
+                    dot += int(self.W_out_q[c, j]) * int(features_q[i, j])
+                scores[c] = (dot >> self.frac) + int(self.bias_out_q[c])
+            pred = int(np.argmax(scores))
+            if pred == y[i]:
+                correct += 1
+        return correct / len(features_q)
+
+    def predict(self, x: np.ndarray, warmup: int = 10,
+                state_mode: str = "membrane", state_reduction: str = "mean",
+                quantized: bool = True) -> np.ndarray:
+        """Predict class labels.
+
+        Parameters
+        ----------
+        quantized : if True, use INTEGER readout; if False, use float readout
+        """
+        features_q = self.collect_features(x, warmup=warmup, state_mode=state_mode, state_reduction=state_reduction)
+
+        if quantized and self.W_out_q is not None:
+            preds = []
+            for i in range(len(features_q)):
+                scores = np.zeros(self.n_classes, dtype=np.int64)
+                for c in range(self.n_classes):
+                    dot = 0
+                    for j in range(len(features_q[i])):
+                        dot += int(self.W_out_q[c, j]) * int(features_q[i, j])
+                    scores[c] = (dot >> self.frac) + int(self.bias_out_q[c])
+                preds.append(int(np.argmax(scores)))
+            return np.array(preds, dtype=np.int64)
+        else:
+            features_f = fixed_to_float(features_q, self.qfmt)
+            return self.readout.predict(features_f)

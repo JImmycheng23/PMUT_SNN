@@ -1,16 +1,21 @@
 """
-Notebook 14: Fixed-Point PMUT Neuromorphic Inference
-=====================================================
-Quantize the selected LSM pipeline and study accuracy vs bit-width.
+Notebook 14: Retrained-Readout Reservoir Quantisation Study
+============================================================
+Quantize LSM reservoir + states, study accuracy vs bit-width.
+
+⚠️ This is NOT an end-to-end fixed-point classifier.
+The readout is retrained in FLOAT at each bit width.
+For a true hardware-compatible pipeline, see IntegerLSM in fixed_point.py.
 
 Tests:
   1. Quantize LSM weights + LIF parameters to fixed-point
-  2. Run full PMUT inference at 16/12/8/4-bit
-  3. Compare accuracy vs bit-width
-  4. Recommended Q-format for hardware
+  2. Run PMUT inference at 16/12/8/4-bit (reservoir only)
+  3. Retrain float Ridge readout per bit width
+  4. Compare accuracy vs bit-width
+  5. Recommended Q-format for hardware
 
 Usage:
-  python notebooks/nb14_fixed_point_pmut.py [--task pure]
+  python notebooks/nb14_fixed_point_pmut.py [--task high-glucose]
 """
 
 import argparse

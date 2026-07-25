@@ -1,0 +1,99 @@
+{
+  "seed": 42,
+  "model": "encoded_spike_snn",
+  "device": "cpu",
+  "epochs": 30,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "labels": [
+    "Glucose 50 mM",
+    "Glucose 100 mM",
+    "Glucose 250 mM",
+    "Glucose 500 mM",
+    "Glucose 1000 mM"
+  ],
+  "dataset": {
+    "task": "high-glucose",
+    "split": "grouped",
+    "window_size": 128,
+    "stride": 128,
+    "n_samples": 690,
+    "n_train": 460,
+    "n_train_final": 368,
+    "n_val": 92,
+    "n_test": 230,
+    "normalization_mean": [
+      0.00449143722653389,
+      -1.8207216262817383,
+      0.004485500976443291,
+      -0.00016244762809947133
+    ],
+    "normalization_std": [
+      0.0011197442654520273,
+      2.181807279586792,
+      0.0011169788194820285,
+      0.00018101681780535728
+    ],
+    "encoder": "rate",
+    "n_steps": 50,
+    "encode_seed": 42,
+    "encode_channels": "all_four"
+  },
+  "final_test_accuracy": 0.30869565217391304,
+  "balanced_accuracy": 0.308695652173913,
+  "macro_precision": 0.312179728911101,
+  "macro_recall": 0.308695652173913,
+  "macro_f1": 0.29250910746812386,
+  "per_class_recall": {
+    "Glucose 50 mM": 0.45652173913043476,
+    "Glucose 100 mM": 0.10869565217391304,
+    "Glucose 250 mM": 0.1956521739130435,
+    "Glucose 500 mM": 0.41304347826086957,
+    "Glucose 1000 mM": 0.3695652173913043
+  },
+  "confusion_matrix": [
+    [
+      21,
+      4,
+      5,
+      15,
+      1
+    ],
+    [
+      28,
+      5,
+      4,
+      3,
+      6
+    ],
+    [
+      5,
+      0,
+      9,
+      19,
+      13
+    ],
+    [
+      3,
+      0,
+      11,
+      19,
+      13
+    ],
+    [
+      5,
+      6,
+      3,
+      15,
+      17
+    ]
+  ],
+  "n_val": 92,
+  "has_val": true,
+  "best": {
+    "epoch": 7,
+    "train_loss": 1.0057362020015717,
+    "train_accuracy": 0.7447916666666666,
+    "val_accuracy": 0.44565217391304346
+  }
+}

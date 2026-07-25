@@ -497,6 +497,25 @@ class LiquidStateMachine:
         features = self._collect_features(x, warmup=warmup, state_mode=state_mode, state_reduction=state_reduction)
         return self.readout.predict(features)
 
+    def predict_proba(
+        self,
+        x: np.ndarray,
+        warmup: int = 10,
+        state_mode: str = "membrane",
+        state_reduction: str = "mean",
+    ) -> np.ndarray:
+        """Predict class probabilities via decision_function + softmax.
+
+        Returns ndarray of shape (n_samples, n_classes).
+        """
+        if self.readout is None:
+            raise RuntimeError("Readout not fitted.")
+        features = self._collect_features(x, warmup=warmup, state_mode=state_mode, state_reduction=state_reduction)
+        decision = self.readout.decision_function(features)
+        decision -= decision.max(axis=1, keepdims=True)
+        exp_d = np.exp(decision)
+        return exp_d / exp_d.sum(axis=1, keepdims=True)
+
     def _collect_features(
         self,
         x: np.ndarray,

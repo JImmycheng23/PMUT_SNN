@@ -162,11 +162,13 @@ def train_reservoir(
 # Multi-seed training
 # ---------------------------------------------------------------------------
 
+RESERVOIR_DEFAULT_SEEDS = [7, 42, 123, 999, 2024]
+
 def train_reservoir_multi_seed(bundle, num_seeds: int = 5, base_seed: int = 7, **kwargs) -> dict:
     """Train reservoir with multiple seeds, return mean ± std metrics."""
     results = []
-    for i in range(num_seeds):
-        seed = base_seed + i * 37
+    seeds = RESERVOIR_DEFAULT_SEEDS[:num_seeds] if base_seed == 7 else [base_seed + i * 37 for i in range(num_seeds)]
+    for seed in seeds:
         r = train_reservoir(bundle, seed=seed, **kwargs)
         results.append(r)
 
@@ -288,8 +290,8 @@ def train_lsm(
 def train_lsm_multi_seed(bundle, num_seeds: int = 5, base_seed: int = 7, **kwargs) -> dict:
     """Train LSM with multiple seeds, return mean ± std metrics."""
     results = []
-    for i in range(num_seeds):
-        seed = base_seed + i * 37
+    seeds = RESERVOIR_DEFAULT_SEEDS[:num_seeds] if base_seed == 7 else [base_seed + i * 37 for i in range(num_seeds)]
+    for seed in seeds:
         r = train_lsm(bundle, seed=seed, **kwargs)
         results.append(r)
 
@@ -665,7 +667,7 @@ def main() -> None:
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--state-reduction", choices=["mean", "last", "concat_ends"], default="mean")
     parser.add_argument("--alpha", type=float, default=1.0, help="Ridge regularization strength")
-    parser.add_argument("--num-seeds", type=int, default=1)
+    parser.add_argument("--num-seeds", type=int, default=5, help="Number of seeds (default: 5)")
 
     # LSM-specific hyperparameters
     parser.add_argument("--beta", type=float, default=0.9, help="LSM membrane decay (0 < beta < 1)")
