@@ -8,7 +8,9 @@ The readout is retrained in FLOAT at each bit width.
 For a true hardware-compatible pipeline, see IntegerLSM in fixed_point.py.
 
 Tests:
-  1. Quantize LSM weights + LIF parameters to fixed-point
+  1. Quantize LSM weights + LIF parameters to fixed-point (reservoir only)
+     NOTE: For a true end-to-end fixed-point classifier with quantized
+     readout, see IntegerLSM in src/pmut_models/fixed_point.py.
   2. Run PMUT inference at 16/12/8/4-bit (reservoir only)
   3. Retrain float Ridge readout per bit width
   4. Compare accuracy vs bit-width

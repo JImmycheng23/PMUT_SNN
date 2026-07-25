@@ -2730,5 +2730,15 @@
     "state_mode": "spikes",
     "state_reduction": "mean",
     "alpha": 1.0
-  }
+  },
+  "sweep_accuracy_mean": 0.9199999999999999,
+  "sweep_accuracy_std": 0.09797958971132709,
+  "sweep_accuracy_list": [
+    1.0,
+    1.0,
+    0.8,
+    1.0,
+    0.8
+  ],
+  "prediction_level_sweep": true
 }
