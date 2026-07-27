@@ -1,271 +1,149 @@
 # PMUT Neuromorphic Classification
 
-**Piezoelectric Micromachined Ultrasonic Transducer (PMUT)** fluid classification using spiking neural networks (SNN), reservoir computing (ESN/LSM), and conventional CNNs. Classifies glucose concentrations from electrical impedance sweep data.
+Piezoelectric Micromachined Ultrasonic Transducer (PMUT) fluid classification using
+spiking neural networks, reservoir computing (ESN/LSM), and CNNs. Impedance sweeps are
+recorded across a frequency ramp (100 kHz – 2.5 MHz) with four channels per sweep:
+**amplitude**, **phase**, **x_v** (in-phase), **y_v** (quadrature).
 
-Each sweep records four signal channels — **amplitude**, **phase**, **x_v** (in-phase/R), **y_v** (quadrature/X) — across a frequency ramp. The frequency axis is treated as a sequential spectral dimension (ordered low→high frequency — NOT physical time) for spiking and reservoir models.
+**Primary benchmark:** 5-class high-glucose (50/100/250/500/1000 mM), 3 physical sweeps
+per class, 3-fold sweep-level rotation with 5 seeds.
+
+**GitHub:** [JImmycheng23/PMUT_SNN](https://github.com/JImmycheng23/PMUT_SNN)
+**Branch:** `review-fixes-2026-07-21`
 
 ---
 
-## Project Status
+## Latest Results (2026-07-25)
 
-| Goal | Scope | Status |
-|---|---|---|
-| **Goal 1** | Data pipeline, feature extraction, classical ML baselines | ✅ Complete |
-| **Goal 2** | Spike encoding methods, SNN classifiers | ✅ Complete |
-| **Goal 3** | Reservoir computing (ESN + LSM), cross-model comparison | ✅ Complete |
-| **Goal 4** | Fixed-point quantization, HDL spec + Verilog LIF neuron | ✅ Complete |
+| Model | Type | Prediction | Accuracy |
+|-------|------|-----------|----------|
+| Random Forest | 61 corrected features | sweep | **93.3%** CV |
+| LSM (spike readout) | Spiking reservoir | sweep | **88.0% ± 11.8%** |
+| ESN (tanh) | Rate-coded reservoir | sweep | **84.0% ± 8.6%** |
+| LSM (membrane readout) | Spiking reservoir | sweep | 73.3% ± 9.4% |
+| CNN1D | Convolutional | window¹ | 73.8% ± 9.8% |
+| SpikingCNN1D | Learned spiking | window¹ | 75.7% (fold 0) |
+| Encoder→SNN (rate) | Explicit spike | window | 32.5% (chance=20%) |
 
-**All 4 goals complete (post-review fixes 2026-07-22).** Best model: **CNN1D (84.3%)** on high-glucose; **LSM (81.4%)** on glucose-ladder. 16-bit Q3.12 fixed-point preserves accuracy — HDL-ready.
+¹ Neural models pending sweep-aggregation re-run. Large ± values = genuine across-fold
+variance from small dataset (15 sweeps), not leakage.
 
 ---
 
 ## Quick Start
 
-### Install Dependencies
-
-```powershell
-pip install -r requirements.txt
-```
-
-Requirements: Python 3.10+, PyTorch 2.2+, NumPy, Pandas, scikit-learn, Matplotlib, SciPy, Seaborn, openpyxl.
-
-### Prepare Data
-
-Place raw data files in C:\Users\27010\Desktop\Neumat\Data\PMUT-SNN\ (or pass --data-root to override):
-
-| File | Contents |
-|---|---|
-| pmut_rx_tx_Air_Glucose_50mM_to_1000mM.xlsx | Air, Water, Glucose 50–1000 mM (3 sweeps each) |
-| low_conc_glucose_sweeps_data_2mM_to_50mM.xlsx | Glucose 2–20 mM + Air/Water (Tx-Rx sheets) |
-| Liquid_Loading_Dataset_Air_DIW_Acetone_IPA.csv | 6 media (1 sweep each, 2000 pts/sweep) |
-
-Prepare datasets:
-
-```powershell
+```sh
+# Prepare dataset
 python prepare_dataset.py --task high-glucose --split grouped
-python prepare_dataset.py --task glucose-ladder --split window
-```
 
-### Run the Full Pipeline
-
-```powershell
-# Goal 1: Feature extraction + classical ML
+# Feature extraction (61 features, local-band Q/bw)
 python notebooks/nb4_feature_extraction.py --task high-glucose
+
+# Feature ML baselines
 python notebooks/nb5_feature_ml_baselines.py --task high-glucose
 
-# Goal 2: Spike encoding + SNN training
-python notebooks/nb8_spike_encoding.py --task high-glucose
-python notebooks/nb9_encoder_evaluation.py --task high-glucose
-python train.py --task high-glucose --split grouped --model cnn1d --epochs 150
+# Neural models (5 seeds)
+python train.py --task high-glucose --split grouped --model cnn1d --num-seeds 5 --epochs 150
 
-# Goal 3: Reservoir computing + model comparison
-python notebooks/nb11_reservoir.py --task high-glucose --split grouped --analyze
-python notebooks/nb12_model_comparison.py
+# Reservoir models (5 seeds)
+python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5
+python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5 --lsm
 
-# Goal 4: Fixed-point + HDL
-python notebooks/nb14_fixed_point_pmut.py --task high-glucose --split grouped
-python notebooks/nb15_hdl_test_vectors.py --task high-glucose --split grouped
-python notebooks/nb16_hdl_spec.py --generate-hdl
+# Central results
+python build_central_results.py
 ```
 
-### View Raw Data
-
-```powershell
-python raw_data_viewer.py --task high-glucose
-```
-
-Tkinter GUI for browsing sweeps, selecting label, channel, and frequency range.
-
-## Tasks & Splits
-
-### Available Tasks
-
-| Task | Classes | Sweeps | Split | Description |
-|---|---|---|---|---|
-| high-glucose | 5 | 15 (3/class) | grouped | Glucose 50/100/250/500/1000 mM — primary benchmark |
-| glucose-ladder | 13 | 23 | window | Glucose 2mM–1000mM sparse ladder — hardest task |
-| pure | — | — | — | Excluded — 4/7 classes have only 1 sweep; results unreproducible |
-
-### Split Strategies
-
-| Split | Description | Best For |
-|---|---|---|
-| grouped | Hold out last complete sweep per class | Most defensible — requires ≥2 sweeps/class |
-| window | Every Nth window (non-overlapping stride) | Tasks with too few sweeps for grouped |
-| random_window | Randomly shuffled windows per class | Prevents frequency-range bias |
-
-Default windowing is non-overlapping (stride = window_size, typically 128). Override with --stride 64 for overlapping windows.
-
-## Models
-
-### Neural Classifiers (src/pmut_models/spiking.py)
-
-| Model | Type | Architecture |
-|---|---|---|
-| CNN1D | Non-spiking baseline | Conv1d + ReLU + AdaptiveAvgPool1d |
-| SpikingCNN1D | Spiking CNN | Conv1d + LIF layers over frequency axis |
-| TemporalLIFSNN | Spiking RNN-like | LIF neuron per frequency point (sequential spectral processing) |
-| RateSNNMLP | Spiking MLP | Rate-coded MLP with LIF hidden layers |
-
-### Reservoir Models (src/pmut_models/reservoir.py)
-
-| Model | Dynamics | Update Rule |
-|---|---|---|
-| Reservoir (ESN) | Rate-coded tanh | h(t) = (1−α)·h(t−1) + α·tanh(W_in·x + W_res·h(t−1)) |
-| LiquidStateMachine (LSM) | Spiking LIF | Binary spike events with subtractive reset |
-
-Both reservoirs have fixed random weights — only the ridge regression readout (~300 params) is trained.
-
-### Fixed-Point Models (src/pmut_models/fixed_point.py)
-
-| Model | Purpose |
-|---|---|
-| FloatLIF | Floating-point gold reference |
-| FixedPointLIF | Q-format integer arithmetic — hardware-accurate simulation |
-
-## Key Results
-
-### Neural Models — high-glucose grouped (train/val/test split)
-
-| Model | Test Acc | Type |
-|---|---|---|
-| **CNN1D** | **84.3%** | Non-spiking CNN |
-| SpikingCNN1D | 83.0% | Spiking CNN |
-| ESN (tanh) | 80.9% ± 0.4% | Reservoir |
-| LSM (membrane) | 80.3% ± 1.4% | Spiking reservoir |
-| TemporalLIFSNN | 76.1% | Spiking RNN |
-| EncodedSpikeSNN (rate) | 30.0% | Explicit encoder→SNN |
-
-### Reservoir Models — glucose-ladder window
-
-| Model | Test Acc |
-|---|---|
-| **LSM (membrane)** | **81.4% ± 1.2%** |
-| ESN (tanh) | 70.1% ± 1.1% |
-
-LSM dominates on the harder 13-class task (+11.3 pp over ESN).
-
-### Feature-Based ML Baselines (CV, Pipeline — no leakage)
-
-| Model | high-glucose (5-class) | glucose-ladder (13-class) |
-|---|---|---|
-| Random Forest | **93.3%** | **56.5%** |
-| MLP | 80.0% | 43.5% |
-| Logistic Regression | 66.7% | 34.8% |
-
-⚠️ Feature-based ML uses sweep-level engineered features and should not be directly compared to window-level neural models.
-
-### Fixed-Point Quantization (LSM pipeline)
-
-| Format | high-glucose | glucose-ladder | Hardware |
-|---|---|---|---|
-| Float (reference) | 84.8% | 85.0% | — |
-| 16-bit Q3.12 | 86.1% | 88.0% | ✅ FPGA DSP48 |
-| 12-bit Q3.8 | 83.0% | 86.2% | ⚠️ Viable |
-| 8-bit Q3.4 | 77.8% | 77.8% | ❌ Marginal |
-
-16-bit fixed-point matches or slightly exceeds float accuracy. The procedure retrains the Ridge readout at each bit width (retrained-readout quantization). Observed +1–3% at 16-bit is within seed variance; the "implicit regularization" hypothesis has not been directly tested.
-
-### Best Spike Encoder
-
-Delta coding — best test generalisation on high-glucose (40% vs chance 20%) in sweep-level encoder evaluation (NB9). Latency coding — ~6× fewer spikes than rate coding with comparable information preservation.
+---
 
 ## Project Structure
 
-```text
+```
 pmut_snn_models/
-├── src/pmut_models/           # Core library
-│   ├── config.py              # Default paths
-│   ├── data.py                # Data loading, windowing, splits, standardization
-│   ├── spiking.py             # SpikeFunction, LIFStateLayer, 4 trainable SNN/CNN models
-│   ├── train_utils.py         # Training loop, evaluation, multi-seed harness
-│   ├── reservoir.py           # ESN (tanh), LSM (LIF), grid search, memory capacity
-│   └── fixed_point.py         # Q-format, FloatLIF, FixedPointLIF, HDL test vectors
-├── notebooks/                 # Analysis & experiment scripts (NB4–NB16)
-│   ├── nb4_feature_extraction.py      # Extract 12 physical features per sweep
-│   ├── nb5_feature_ml_baselines.py    # Classical ML with honest cross-validation
-│   ├── nb7_lif_validation.py          # LIF neuron dynamics validation
-│   ├── nb8_spike_encoding.py          # 5 spike encoding methods
-│   ├── nb9_encoder_evaluation.py      # Encoder comparison with LR classifier
-│   ├── nb11_reservoir.py              # ESN + LSM training, analysis, sweeps
-│   ├── nb12_model_comparison.py       # Cross-model comparison + Goal 3 report
-│   ├── nb13_fixed_point_lif.py        # Fixed-point LIF neuron validation
-│   ├── nb14_fixed_point_pmut.py       # Quantized PMUT inference bit-width study
-│   ├── nb15_hdl_test_vectors.py       # HDL test-vector generation from PMUT data
-│   ├── nb16_hdl_spec.py               # HDL specification + Verilog LIF neuron
-│   └── generate_report.py              # Goal 1+2 completion report generator
-├── train.py                   # Neural model training CLI
-├── prepare_dataset.py         # Dataset preparation (.npz generation)
-├── raw_data_viewer.py         # Raw sweep visualization (Tkinter GUI)
-├── verify_hdl_checklist.py    # Software-level HDL verification (7 checks)
-├── outputs/                   # All generated artifacts
-│   ├── datasets/              # Prepared .npz files
-│   ├── features/              # Extracted PMUT features (NB4)
-│   ├── feature_ml/            # Classical ML baselines (NB5)
-│   ├── runs/                  # Neural model training runs
-│   ├── lif_validation/        # LIF neuron experiments (NB7)
-│   ├── spike_encoding/        # Spike rasters + stats (NB8)
-│   ├── encoder_evaluation/    # Encoder comparison (NB9)
-│   ├── reservoir/             # ESN + LSM results (NB11)
-│   ├── comparison/            # Cross-model comparison + Goal 3 report (NB12)
-│   ├── fixed_point/           # Fixed-point LIF + PMUT study (NB13/NB14)
-│   ├── hdl_test_vectors/      # HDL verification data (NB15)
-│   ├── hdl/                   # HDL spec + Verilog (NB16)
-│   ├── FINAL_COMPLETION_REPORT.md    ← Comprehensive report (all goals, honest results)
-│   ├── RESPONSE_TO_SUPERVISOR_REVIEW.md
-│   └── SUPERVISOR_SUMMARY_TABLE.md
-├── CLAUDE.md                  # AI coding assistant guide
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
+├── src/pmut_models/       # Core library
+│   ├── data.py            # Loading, windowing, 3-fold rotation, phase validation
+│   ├── spiking.py         # SNN/CNN models (CNN1D, SpikingCNN1D, EncodedSpikeSNN, …)
+│   ├── train_utils.py     # Training loop, multi-seed, sweep aggregation, encoder diagnosis
+│   ├── reservoir.py       # ESN + LSM (Liquid State Machine)
+│   ├── fixed_point.py     # Q-format, FixedPointLIF, IntegerLSM, HDL test vectors
+│   └── config.py          # Default paths
+├── notebooks/             # Experiment notebooks
+│   ├── nb4_feature_extraction.py    # 61 corrected features (local-band Q/bw)
+│   ├── nb5_feature_ml_baselines.py  # RF=93.3%, SVM, LR, KNN, MLP
+│   ├── nb8_spike_encoding.py       # Rate/latency/delta/threshold/population encoders
+│   ├── nb9_encoder_evaluation.py   # Encoder comparison
+│   ├── nb11_reservoir.py           # ESN + LSM training
+│   ├── nb12_model_comparison.py    # Cross-model comparison + pipeline selection
+│   ├── nb13_fixed_point_lif.py     # Float vs fixed-point LIF comparison
+│   ├── nb14_fixed_point_pmut.py    # Retrained-readout reservoir quantisation
+│   ├── nb15_hdl_test_vectors.py    # HDL test vector generation
+│   └── nb16_hdl_spec.py            # HDL specification generation
+├── outputs/               # Generated results (fold-based layout)
+│   ├── features/          # NB4: feature table + diagnostic band plots
+│   ├── feature_ml/        # NB5: baseline summary + confusion matrices
+│   ├── runs/              # Neural models: {task}_folds_w{win}/{model}/fold{N}/
+│   ├── reservoir/         # ESN + LSM: {task}/{split}/fold{N}/[lsm/]
+│   ├── comparison/        # NB12: comparison tables + pipeline selection
+│   ├── fixed_point/       # NB13/NB14: bit-width study
+│   ├── hdl_test_vectors/  # NB15: CSV + JSON test vectors
+│   ├── hdl/               # NB16: HDL spec + corrected Verilog LIF
+│   └── central_results/   # Master CSV (22 structured columns)
+├── outputs_legacy/        # Pre-freeze outputs (v2.0-clean-slate)
+├── build_central_results.py  # Central results aggregator
+├── REPRODUCIBILITY.md     # Frozen commit, data checksums, regeneration commands
+└── CLAUDE.md              # AI assistant guidance
 ```
 
-## Output Reports
+---
 
-| Report | Description |
-|---|---|
-| `outputs/FINAL_COMPLETION_REPORT.md` | Comprehensive report — all 4 goals, honest post-review results |
-| `outputs/RESPONSE_TO_SUPERVISOR_REVIEW.md` | Full 18-point supervisor response with code references |
-| `outputs/SUPERVISOR_SUMMARY_TABLE.md` | Clean summary table (email-ready) |
-| `outputs/central_results/master_results.csv` | All experiments, machine-readable |
+## Evaluation Protocol
+
+**3-fold sweep rotation:** Each fold uses a different physical sweep for train/val/test.
+
+| Fold | Train | Val | Test |
+|------|-------|-----|------|
+| 0 | Sweep 1 | Sweep 2 | Sweep 3 |
+| 1 | Sweep 2 | Sweep 3 | Sweep 1 |
+| 2 | Sweep 3 | Sweep 1 | Sweep 2 |
+
+**Multi-seed:** 5 seeds `[7, 42, 123, 999, 2024]` per fold = 15 independent runs per model.
+
+**Sweep-level aggregation:** Window predictions are grouped by sweep_key and combined
+via majority vote (or mean logits when probabilities are available). Reservoir results
+are sweep-aggregated; neural models pending.
+
+---
 
 ## Key Design Decisions
 
-| Decision | Rationale |
-|---|---|
-| Frequency as sequence | PMUT sweeps are inherently sequential (ordered by frequency). LIF neurons and reservoirs process frequency steps as an ordered sequence — this is NOT physical time-domain dynamics. |
-| Non-overlapping windows | Default stride = window_size prevents data leakage between train/test windows. |
-| Grouped split is most defensible | Holds out complete sweeps rather than windows from the same sweep. |
-| Fixed reservoir weights | Only the readout is trained (ridge regression), making reservoirs extremely data-efficient (important with only 15–23 sweeps). |
-| 16-bit Q3.12 | Matches FPGA DSP48 blocks natively. Readout is retrained at each bit width (retrained-readout quantization). |
+- **glucose-ladder (2–20 mM) removed from primary study.** Single-sweep classes cannot
+  support independent train/test. Retained in `data.py` for exploratory visualisation.
+- **Phase preprocessing verified.** All checks pass: degrees, 0 wraps in windows, 0 sign
+  errors. Phase carries less discriminative info than amplitude for damped PMUT — this
+  is a physical property, not a bug.
+- **ESN and LSM perform similarly on the primary benchmark.** The previously claimed
+  "LSM beats ESN" was based on the now-removed 13-class glucose-ladder.
+- **Encoder→SNN ~32% is a fundamental information-loss problem**, not a bug. Binary
+  encoding + single channel + fixed projection cannot recover the fine amplitude
+  variations that discriminate glucose concentrations.
+- **16-bit fixed-point preserves accuracy.** IntegerLSM with quantized readout exists
+  as a hardware-ready reference model.
 
-## Hardware Path
+---
 
-The LSM → fixed-point → HDL pipeline is ready for synthesis:
+## HDL Status
 
-```text
-PMUT raw data → spike encode → LSM reservoir (LIF) → ridge readout
-                                                        ↓
-                                             16-bit Q3.12 quantize
-                                                        ↓
-                                        Verilog LIF neuron (lif_neuron_fxp.v)
-                                                        ↓
-                                            FPGA synthesis (pending)
-```
+| Deliverable | Status |
+|-------------|--------|
+| HDL specification | ✅ Complete |
+| Verilog LIF neuron (v_next corrected) | ✅ Complete |
+| Self-checking testbench | ✅ Built-in sanity test |
+| PMUT spike-to-current scaling | ✅ Fixed (binary gate) |
+| Test vectors | ⚠️ In `outputs_legacy/` — need regeneration |
+| Multi-neuron reservoir | ❌ Not yet |
+| Icarus/Verilator simulation | ❌ Not run |
 
-HDL deliverables in outputs/hdl/:
+---
 
-| Deliverable | Description |
-|---|---|
-| HDL_SPECIFICATION.md | Complete port map, Q-format, update rule, testbench requirements |
-| lif_neuron_fxp.v | Synthesis-ready Verilog module + testbench |
+## License
 
-Resource estimate per LIF neuron (16-bit): 1 signed multiplier (16×16), 1 adder, 1 comparator, ~33 flip-flops.
-
-## Data Limitations
-
-| Limitation | Details |
-|---|---|
-| Small dataset | 15 sweeps (high-glucose) and 23 sweeps (glucose-ladder). Reservoir computing is well-suited to this regime. |
-| Pure task excluded | 4 of 7 classes in the pure-fluid dataset have only 1 sweep. Awaiting additional sweeps from the lab. |
-| No test-set holdout | Cross-validation is used throughout. A true held-out test set would require additional independent measurements. |
-| Feature vs. window level | Feature-based ML (sweep-level features) and neural/reservoir models (window-level raw data) operate on different representations and are not directly comparable. |
+MIT
