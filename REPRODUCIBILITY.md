@@ -1,6 +1,6 @@
 # Reproducibility Reference
 
-**Frozen commit:** `c1dac7a` (branch: `review-fixes-2026-07-21`)
+**Frozen commit:** `d64c887` (branch: `review-fixes-2026-07-21`)
 **Tag:** `v2.0-final`
 **Date:** 2026-07-28
 **Python:** 3.13.7
