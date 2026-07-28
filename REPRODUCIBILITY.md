@@ -1,8 +1,8 @@
 # Reproducibility Reference
 
-**Frozen commit:** `94fa6d6` (branch: `review-fixes-2026-07-21`)
-**Tag:** `v2.0-clean-slate`
-**Date:** 2026-07-24
+**Frozen commit:** `c1dac7a` (branch: `review-fixes-2026-07-21`)
+**Tag:** `v2.0-final`
+**Date:** 2026-07-28
 **Python:** 3.13.7
 
 ## Raw data files
@@ -22,7 +22,15 @@
 The `glucose-ladder` task is **exploratory only** (see Point 1 of Fix-point 2 review).
 Low-concentration data (2–20 mM) have only 1 sweep each — no sweep-level train/test possible.
 
-## Regeneration commands
+## Quick regeneration (single command)
+
+```sh
+python regenerate_all.py --task high-glucose --window-size 128 --num-seeds 5 --epochs 150
+```
+
+Use `--skip-neural`, `--skip-reservoir`, or `--skip-features` to skip compute-heavy stages.
+
+## Step-by-step regeneration commands
 
 All commands run from repo root. Outputs go to `outputs/`.
 
@@ -30,20 +38,21 @@ All commands run from repo root. Outputs go to `outputs/`.
 # Phase A: Prepare dataset
 python prepare_dataset.py --task high-glucose --split grouped
 
-# Phase B: Feature extraction (NB4)
+# Phase B: Feature extraction (NB4) — all 15 sweeps
 python notebooks/nb4_feature_extraction.py --task high-glucose
 
 # Phase C: Feature ML baselines (NB5)
 python notebooks/nb5_feature_ml_baselines.py --task high-glucose
 
 # Phase D: Neural models (5 seeds × 3 folds = 15 runs each)
-python train.py --task high-glucose --split grouped --model cnn1d --num-seeds 5 --epochs 150
-python train.py --task high-glucose --split grouped --model spiking_cnn1d --num-seeds 5 --epochs 150
-python train.py --task high-glucose --split grouped --model temporal_lif_snn --num-seeds 5 --epochs 150
+python train.py --task high-glucose --folds --model cnn1d --num-seeds 5 --epochs 150
+python train.py --task high-glucose --folds --model spiking_cnn1d --num-seeds 5 --epochs 150
+python train.py --task high-glucose --folds --model temporal_lif_snn --num-seeds 5 --epochs 150
+python train.py --task high-glucose --folds --model rate_snn_mlp --num-seeds 5 --epochs 150
 
 # Phase E: Reservoir models (5 seeds × 3 folds)
-python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5
-python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5 --lsm
+python notebooks/nb11_reservoir.py --task high-glucose --folds --num-seeds 5
+python notebooks/nb11_reservoir.py --task high-glucose --folds --num-seeds 5 --lsm
 
 # Phase F: Encoder evaluation (NB9)
 python notebooks/nb9_encoder_evaluation.py --task high-glucose --split grouped
@@ -51,10 +60,8 @@ python notebooks/nb9_encoder_evaluation.py --task high-glucose --split grouped
 # Phase G: Model comparison (NB12)
 python notebooks/nb12_model_comparison.py --task high-glucose
 
-# Phase H: Fixed-point PMUT (NB14)
-python notebooks/nb14_fixed_point_pmut.py --task high-glucose --split grouped
-
 # Verification
+python build_central_results.py
 python verify_hdl_checklist.py
 ```
 
@@ -63,6 +70,22 @@ python verify_hdl_checklist.py
 ```
 numpy, scipy, pandas, scikit-learn, matplotlib, openpyxl
 torch (for neural models)
+```
+
+## Output directory map
+
+```
+outputs/
+├── datasets/              # Prepared .npz files
+├── features/              # NB4: 61 features + 15 diagnostic band plots
+├── feature_ml/            # NB5: RF + other ML baselines
+├── runs/                  # Neural model training (fold-based layout)
+│   └── high-glucose_folds_w128/{model}/fold{N}/[seed dirs...]
+├── reservoir/             # NB11: ESN + LSM results (fold-based)
+│   └── high-glucose/grouped_w128/fold{N}/[lsm/]
+├── comparison/            # NB12: cross-model comparison
+├── central_results/       # build_central_results.py output
+└── REPRODUCIBILITY.md     # This file
 ```
 
 ## Legacy outputs

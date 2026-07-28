@@ -1,9 +1,12 @@
 {
   "model": "cnn1d",
-  "num_seeds": 2,
+  "num_seeds": 5,
   "seeds": [
     7,
-    42
+    42,
+    123,
+    999,
+    2024
   ],
   "labels": [
     "Glucose 50 mM",
@@ -56,16 +59,22 @@
       0.00017131389176938683
     ]
   },
-  "final_test_accuracy_mean": 0.7,
-  "final_test_accuracy_std": 0.06521739130434784,
+  "final_test_accuracy_mean": 0.7243478260869566,
+  "final_test_accuracy_std": 0.1051634788217031,
   "final_test_accuracy_list": [
     0.7652173913043478,
-    0.6347826086956522
+    0.6347826086956522,
+    0.8478260869565217,
+    0.8043478260869565,
+    0.5695652173913044
   ],
-  "best_val_accuracy_mean": 0.8869565217391304,
-  "best_val_accuracy_std": 0.0,
+  "best_val_accuracy_mean": 0.8878260869565218,
+  "best_val_accuracy_std": 0.0057680431136615615,
   "best_val_accuracy_list": [
     0.8869565217391304,
-    0.8869565217391304
+    0.8869565217391304,
+    0.8782608695652174,
+    0.8956521739130435,
+    0.8913043478260869
   ]
 }

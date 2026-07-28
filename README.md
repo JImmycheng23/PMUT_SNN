@@ -13,20 +13,23 @@ per class, 3-fold sweep-level rotation with 5 seeds.
 
 ---
 
-## Latest Results (2026-07-25)
+## Latest Results (2026-07-28 — full regeneration)
 
 | Model | Type | Prediction | Accuracy |
 |-------|------|-----------|----------|
 | Random Forest | 61 corrected features | sweep | **93.3%** CV |
-| LSM (spike readout) | Spiking reservoir | sweep | **88.0% ± 11.8%** |
-| ESN (tanh) | Rate-coded reservoir | sweep | **84.0% ± 8.6%** |
-| LSM (membrane readout) | Spiking reservoir | sweep | 73.3% ± 9.4% |
-| CNN1D | Convolutional | window¹ | 73.8% ± 9.8% |
-| SpikingCNN1D | Learned spiking | window¹ | 75.7% (fold 0) |
-| Encoder→SNN (rate) | Explicit spike | window | 32.5% (chance=20%) |
+| SVM (Linear) | 61 corrected features | sweep | **93.3%** CV |
+| SpikingCNN1D | Learned spiking | sweep | **85.3% ± 6.8%** |
+| LSM (spike readout) | Spiking reservoir | window | 81.6% ± 8.8% |
+| ESN (tanh) | Rate-coded reservoir | window | 80.6% ± 7.4% |
+| RateSNNMLP | Learned spiking | sweep | 80.0% ± 6.5% |
+| CNN1D | Convolutional | sweep | 78.7% ± 12.4% |
+| TemporalLIFSNN | Learned spiking | sweep | 78.7% ± 1.9% |
+| LSM (membrane readout) | Spiking reservoir | window | 78.1% ± 7.3% |
 
-¹ Neural models pending sweep-aggregation re-run. Large ± values = genuine across-fold
-variance from small dataset (15 sweeps), not leakage.
+All neural + reservoir results: 3-fold sweep rotation × 5 seeds. Large ± values =
+genuine across-fold variance from small dataset (15 sweeps), not leakage.
+Q-values filtered to physically plausible range (5–500) for MEMS in liquid.
 
 ---
 
@@ -36,18 +39,19 @@ variance from small dataset (15 sweeps), not leakage.
 # Prepare dataset
 python prepare_dataset.py --task high-glucose --split grouped
 
-# Feature extraction (61 features, local-band Q/bw)
+# Feature extraction (61 features, local-band Q/bw, 15 diagnostic plots)
 python notebooks/nb4_feature_extraction.py --task high-glucose
 
 # Feature ML baselines
 python notebooks/nb5_feature_ml_baselines.py --task high-glucose
 
-# Neural models (5 seeds)
-python train.py --task high-glucose --split grouped --model cnn1d --num-seeds 5 --epochs 150
+# Neural models (5 seeds × 3 folds = 15 runs)
+python train.py --task high-glucose --folds --model cnn1d --num-seeds 5 --epochs 150
+python train.py --task high-glucose --folds --model spiking_cnn1d --num-seeds 5 --epochs 150
 
-# Reservoir models (5 seeds)
-python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5
-python notebooks/nb11_reservoir.py --task high-glucose --split grouped --num-seeds 5 --lsm
+# Reservoir models (5 seeds × 3 folds)
+python notebooks/nb11_reservoir.py --task high-glucose --folds --num-seeds 5
+python notebooks/nb11_reservoir.py --task high-glucose --folds --num-seeds 5 --lsm
 
 # Central results
 python build_central_results.py
@@ -108,8 +112,8 @@ pmut_snn_models/
 **Multi-seed:** 5 seeds `[7, 42, 123, 999, 2024]` per fold = 15 independent runs per model.
 
 **Sweep-level aggregation:** Window predictions are grouped by sweep_key and combined
-via majority vote (or mean logits when probabilities are available). Reservoir results
-are sweep-aggregated; neural models pending.
+via majority vote (or mean logits when probabilities are available). All neural models
+now include sweep-level aggregation; reservoir models report window-level.
 
 ---
 

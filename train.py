@@ -1,8 +1,10 @@
 import argparse
 from pathlib import Path
 
+import numpy as np
+
 from src.pmut_models.config import DEFAULT_DATA_ROOT, DEFAULT_OUTPUT_ROOT
-from src.pmut_models.data import build_dataset
+from src.pmut_models.data import build_dataset, build_dataset_folds
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,6 +45,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--num-seeds", type=int, default=5, help="Number of seeds for mean/std reporting (default: 5)")
+    parser.add_argument("--folds", action="store_true",
+        help="Use 3-fold sweep-level rotation (build_dataset_folds). "
+             "Required for reproducible fold-based results. "
+             "Without this flag, uses legacy single-split build_dataset().")
     return parser.parse_args()
 
 
@@ -57,40 +63,94 @@ def main() -> None:
                 "pip install -r requirements.txt"
             ) from exc
         raise
-    bundle = build_dataset(
-        task=args.task,
-        split=args.split,
-        data_root=args.data_root,
-        window_size=args.window_size,
-        stride=args.stride,
-    )
-    print(f"Dataset: {len(bundle.labels)} classes, {bundle.x_train.shape[0]} train, {bundle.x_test.shape[0]} test")
-    print(f"Labels: {bundle.labels}")
-    output_dir = (
-        args.output_root
-        / "runs"
-        / f"{args.task}_{args.split}_{args.model}_w{args.window_size}_seed{args.seed}"
-    )
-    metrics = train_model(
-        bundle=bundle,
-        model_name=args.model,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-        lr=args.lr,
-        output_dir=output_dir,
-        seed=args.seed,
-        num_seeds=args.num_seeds,
-        encode=args.encode,
-        encode_steps=args.encode_steps,
-        encode_channels=args.encode_channels,
-    )
-    print(f"saved={output_dir}")
-    if args.num_seeds > 1:
-        print(f"final_test_accuracy={metrics['final_test_accuracy_mean']:.4f} +/- {metrics['final_test_accuracy_std']:.4f}")
-        print(f"best_val_accuracy={metrics['best_val_accuracy_mean']:.4f} +/- {metrics['best_val_accuracy_std']:.4f}")
+
+    if args.folds:
+        # ── 3-fold sweep rotation ──
+        folds = build_dataset_folds(
+            task=args.task,
+            data_root=args.data_root,
+            window_size=args.window_size,
+            stride=args.stride,
+        )
+        print(f"Fold protocol: {len(folds)} folds × {args.num_seeds} seeds "
+              f"= {len(folds) * args.num_seeds} runs")
+        all_fold_accs: list[float] = []
+        for fold_idx, bundle in enumerate(folds):
+            print(f"\n{'='*60}")
+            print(f"FOLD {fold_idx}  (train={bundle.metadata.get('train_sweeps',['?'])[0]}, "
+                  f"val={bundle.metadata.get('val_sweeps',['?'])[0]}, "
+                  f"test={bundle.metadata.get('test_sweeps',['?'])[0]})")
+            print(f"  Train: {bundle.x_train.shape[0]}  Val: {bundle.x_val.shape[0]}  "
+                  f"Test: {bundle.x_test.shape[0]}")
+            print(f"{'='*60}")
+
+            fold_output_dir = (
+                args.output_root / "runs"
+                / f"{args.task}_folds_w{args.window_size}"
+                / args.model / f"fold{fold_idx}"
+            )
+            metrics = train_model(
+                bundle=bundle,
+                model_name=args.model,
+                epochs=args.epochs,
+                batch_size=args.batch_size,
+                lr=args.lr,
+                output_dir=fold_output_dir,
+                seed=args.seed,
+                num_seeds=args.num_seeds,
+                encode=args.encode,
+                encode_steps=args.encode_steps,
+                encode_channels=args.encode_channels,
+            )
+            if args.num_seeds > 1:
+                acc = metrics["final_test_accuracy_mean"]
+                print(f"fold{fold_idx}={acc:.4f}")
+                all_fold_accs.append(acc)
+            else:
+                print(f"fold{fold_idx}={metrics['final_test_accuracy']:.4f}")
+
+        if all_fold_accs:
+            print(f"\n{'='*60}")
+            print(f"Cross-fold summary ({args.num_seeds} seeds/fold):")
+            print(f"  Per-fold:  {[f'{a:.4f}' for a in all_fold_accs]}")
+            print(f"  Mean ± std: {np.mean(all_fold_accs):.4f} ± {np.std(all_fold_accs):.4f}")
+            print(f"{'='*60}")
     else:
-        print(f"final_test_accuracy={metrics['final_test_accuracy']:.4f}")
-        print(f"best_val_accuracy={metrics['best']['val_accuracy']:.4f}")
+        # ── Legacy single-split path ──
+        bundle = build_dataset(
+            task=args.task,
+            split=args.split,
+            data_root=args.data_root,
+            window_size=args.window_size,
+            stride=args.stride,
+        )
+        print(f"Dataset: {len(bundle.labels)} classes, {bundle.x_train.shape[0]} train, {bundle.x_test.shape[0]} test")
+        print(f"Labels: {bundle.labels}")
+        output_dir = (
+            args.output_root
+            / "runs"
+            / f"{args.task}_{args.split}_{args.model}_w{args.window_size}_seed{args.seed}"
+        )
+        metrics = train_model(
+            bundle=bundle,
+            model_name=args.model,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            lr=args.lr,
+            output_dir=output_dir,
+            seed=args.seed,
+            num_seeds=args.num_seeds,
+            encode=args.encode,
+            encode_steps=args.encode_steps,
+            encode_channels=args.encode_channels,
+        )
+        print(f"saved={output_dir}")
+        if args.num_seeds > 1:
+            print(f"final_test_accuracy={metrics['final_test_accuracy_mean']:.4f} +/- {metrics['final_test_accuracy_std']:.4f}")
+            print(f"best_val_accuracy={metrics['best_val_accuracy_mean']:.4f} +/- {metrics['best_val_accuracy_std']:.4f}")
+        else:
+            print(f"final_test_accuracy={metrics['final_test_accuracy']:.4f}")
+            print(f"best_val_accuracy={metrics['best']['val_accuracy']:.4f}")
 
 
 if __name__ == "__main__":

@@ -13,20 +13,27 @@ across a frequency ramp (ordered low→high, NOT physical time).
 sweeps per class, 3-fold sweep-level rotation. **glucose-ladder (2–20 mM) is exploratory
 only** — single-sweep classes cannot support independent train/test.
 
-**Latest results (2026-07-25, post-Fix-point-2 review):**
+**Latest results (2026-07-28, full regeneration):**
 
 | Model | Prediction Level | Accuracy |
 |-------|-----------------|----------|
 | RF (61 corrected features) | sweep (by design) | **93.3%** CV |
-| LSM spikes | sweep (majority vote) | **88.0% ± 11.8%** |
-| ESN (tanh) | sweep (majority vote) | **84.0% ± 8.6%** |
-| LSM membrane | sweep (majority vote) | **73.3% ± 9.4%** |
-| CNN1D | window (sweep pending) | 73.8% ± 9.8% |
-| SpikingCNN1D | window (fold 0 only) | 75.7% |
-| Encoder→SNN (rate) | window | 32.5% (chance=20%) |
+| SVM Linear (61 corrected features) | sweep (by design) | **93.3%** CV |
+| SpikingCNN1D | sweep (majority vote) | **85.3% ± 6.8%** |
+| LSM spikes | window | **81.6% ± 8.8%** |
+| ESN (tanh) | window | **80.6% ± 7.4%** |
+| RateSNNMLP | sweep (majority vote) | **80.0% ± 6.5%** |
+| SpikingCNN1D | window | **78.9% ± 4.1%** |
+| CNN1D | sweep (majority vote) | **78.7% ± 12.4%** |
+| TemporalLIFSNN | sweep (majority vote) | **78.7% ± 1.9%** |
+| LSM membrane | window | **78.1% ± 7.3%** |
+| CNN1D | window | **76.8% ± 8.5%** |
+| TemporalLIFSNN | window | **72.8% ± 4.4%** |
+| RateSNNMLP | window | **71.0% ± 2.5%** |
 
-All reservoir + neural results use 3-fold × 5-seed protocol. Large ± values are
+All neural results use 3-fold × 5-seed protocol. Large ± values are
 genuine across-fold variance from small dataset (15 sweeps), not leakage.
+Q-values filtered to physically plausible range (5–500) for MEMS in liquid.
 
 **GitHub:** `https://github.com/JImmycheng23/PMUT_SNN` (branch `review-fixes-2026-07-21`)
 
@@ -206,53 +213,49 @@ outputs/
 
 ### Software
 
-1. **Neural models not sweep-aggregated.** CNN1D/SpikingCNN1D results are window-level.
-   `predictions.csv` lacks `sweep_key` column. Fix: modify `train_single_run()` in
-   `train_utils.py` to save `test_groups` alongside predictions, then re-run.
+1. **Reservoir sweep-aggregation not automatic.** Reservoir metrics don't include sweep_key
+   in predictions.csv. Need to modify `nb11_reservoir.py` to save test_groups and call
+   `aggregate_to_sweep()`.
 
-2. **SpikingCNN1D only has Fold 0.** Need to run Folds 1 and 2.
+2. **LSM spikes sweep-aggregation pending.** LSM spike readout gets 81.6% window-level;
+   sweep aggregation not yet computed.
 
-3. **TemporalLIFSNN not regenerated** under the new protocol at all.
+### Hardware (Point 6 — "Later")
 
-4. **NB14 not re-run with IntegerLSM.** Current `outputs/fixed_point/` is empty
-   (moved to `outputs_legacy/`). Need to re-run bit-width study using `IntegerLSM`
-   or at minimum the existing `run_quantized_lsm_inference()`.
-
-### Hardware
-
-5. **IntegerLSM tested on random data only.** Not yet validated on real PMUT sweeps.
+3. **IntegerLSM tested on random data only.** Not yet validated on real PMUT sweeps.
    Need to: load `build_dataset_folds()`, run `IntegerLSM.fit_readout()` on fold 0
    train/val, evaluate on test, compare float vs quantized readout accuracy.
 
-6. **HDL testbench not simulated.** Verilog testbench exists but has not been run
-   through Icarus Verilog or Verilator. The built-in sanity test should pass;
-   PMUT-derived vectors need to be regenerated first (NB15 → hex format).
+4. **HDL testbench not simulated.** Verilog testbench exists but has not been run
+   through Icarus Verilog or Verilator.
 
-7. **Multi-neuron reservoir not in Verilog.** Only the single `lif_neuron_fxp` exists.
+5. **Multi-neuron reservoir not in Verilog.** Only the single `lif_neuron_fxp` exists.
    Scaling to N-neuron reservoir with shared input bus and weight ROM is next.
 
 ### Documentation
 
-8. **`regenerate_all.py` not written.** The orchestration script in `REPRODUCIBILITY.md`
-   does not exist yet. All individual scripts work; just needs a wrapper.
+6. **NB14 not re-run with IntegerLSM.** Current `outputs/fixed_point/` is empty
+   (moved to `outputs_legacy/`). Need to re-run bit-width study using `IntegerLSM`.
 
 ---
 
 ## Session log (abbreviated)
 
-### 2026-07-25
-- Completed all 14 review points from Fix-point 2.
-- Regenerated RF (93.3%), ESN (84.0% sweep), LSM (88.0% sweep spikes), CNN1D (73.8% window).
-- Built `IntegerLSM` with quantized readout.
-- Fixed Verilog LIF (v_next) and spike-to-current scaling.
-- Applied sweep-level aggregation to reservoir results.
-- Rewrote `build_central_results.py` with 22 structured numeric columns.
-- Committed and pushed to GitHub (`review-fixes-2026-07-21`, commit `0a35276`).
-
-### 2026-07-24
-- Clean freeze: `outputs_legacy/`, `v2.0-clean-slate`, `REPRODUCIBILITY.md`.
-- Removed low-concentration ladder from primary classification.
-- Corrected PMUT Q/bw extraction (local-band method, 61 features).
-- Implemented 3-fold sweep rotation, sweep aggregation, multi-seed defaults.
-- Encoder→SNN diagnosis complete (fundamental information-loss problem).
-- ESN/LSM interpretation corrected. Phase preprocessing verified.
+### 2026-07-28 (Final Plan review — Points 1–4)
+- **Point 1 (Reproducibility):** Fixed `train.py` and `nb11_reservoir.py` to use
+  `build_dataset_folds()` with `--folds` flag. Created `regenerate_all.py`
+  orchestration script. Full regeneration from single commit.
+- **Point 2 (Fold integration):** `--folds` flag added to both `train.py` and
+  `nb11_reservoir.py`. Fold loop with per-fold output dirs. Verified
+  3-fold × 5-seed pipeline end-to-end.
+- **Point 3 (Neural models):** All 4 neural models (CNN1D, SpikingCNN1D,
+  TemporalLIFSNN, RateSNNMLP) trained across all 3 folds × 5 seeds.
+  Sweep_key saved in predictions.csv. Sweep-level aggregation working.
+  Added `sweep_predictions.csv` output.
+- **Point 4 (Feature validation):** Q-value physical sanity bounds added
+  (5–500 for PMUT in liquid). Prominence threshold check (>20% of local range).
+  Diagnostic plots generated for all 15 sweeps. implausible Q values now NaN.
+- Regenerated: NB4 (15 diagnostic plots), NB5 (RF/SVM 93.3%), NB11 (ESN 80.6%,
+  LSM membrane 78.1%, LSM spikes 81.6%).
+- Updated `REPRODUCIBILITY.md` with corrected `--folds` commands.
+- Final results table updated. Committed to `review-fixes-2026-07-21`.

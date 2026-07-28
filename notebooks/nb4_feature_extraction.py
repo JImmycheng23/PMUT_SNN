@@ -165,6 +165,17 @@ def _analyse_local_band(
     if f_left is not None and f_right is not None and f_right > f_left:
         bw = f_right - f_left
         q = freq[p_global] / bw
+        # ── Physical sanity bounds for PMUT in liquid ──
+        # Q < 5: bandwidth exceeds 20% of f0 — no meaningful resonance
+        # Q > 500: implausibly narrow for MEMS in liquid (requires vacuum)
+        # Prominence check: peak must be at least 20% of local range
+        if q < 5.0 or q > 500.0:
+            bw = np.nan
+            q = np.nan
+        elif prominence < local_range * 0.20:
+            # Peak not prominent enough relative to band variation
+            bw = np.nan
+            q = np.nan
     else:
         bw = np.nan
         q = np.nan
@@ -403,10 +414,10 @@ def _extract_phase_features(freq: np.ndarray, phase: np.ndarray) -> dict:
 # Diagnostic band plots (per sweep)
 # ---------------------------------------------------------------------------
 
-def plot_diagnostic_bands(df: pd.DataFrame, task: str, out_dir: Path, max_sweeps: int = 9) -> None:
+def plot_diagnostic_bands(df: pd.DataFrame, task: str, out_dir: Path, max_sweeps: int | None = None) -> None:
     """Generate diagnostic plots showing band boundaries, peaks, and half-power crossings.
 
-    For each sweep (up to max_sweeps), produces a figure with 4 subplots — one per
+    For each sweep, produces a figure with 4 subplots — one per
     PMUT mode band. Each subplot shows:
       - Raw amplitude trace (thin grey line)
       - Local band boundaries (vertical dashed lines)
@@ -415,13 +426,18 @@ def plot_diagnostic_bands(df: pd.DataFrame, task: str, out_dir: Path, max_sweeps
       - Half-power level (green dashed line)
       - Half-power crossing markers (green triangles) — or "no crossing" annotation
       - Q and bw values (or "Q not measurable")
+
+    Parameters
+    ----------
+    max_sweeps : int or None
+        Maximum number of sweeps to plot. None = all sweeps.
     """
     frame = load_task_frame(task)
     sweeps_plotted = 0
     for (_, sweep_key, label), group in frame.groupby(
         ["source", "sweep_key", "label"], sort=False
     ):
-        if sweeps_plotted >= max_sweeps:
+        if max_sweeps is not None and sweeps_plotted >= max_sweeps:
             break
         group = group.sort_values("frequency_hz").reset_index(drop=True)
         freq = group["frequency_hz"].to_numpy(dtype=float)
@@ -813,7 +829,7 @@ def main() -> None:
     plot_feature_distributions(df, args.task, out_dir)
     plot_feature_correlation(df, args.task, out_dir)
     plot_class_wise_comparison(df, args.task, out_dir)
-    plot_diagnostic_bands(df, args.task, out_dir, max_sweeps=9)
+    plot_diagnostic_bands(df, args.task, out_dir)
 
     print("\nDone — Notebook 4 complete.")
 

@@ -432,12 +432,13 @@ def accuracy_from_logits(logits: torch.Tensor, targets: torch.Tensor) -> float:
     return float((logits.argmax(dim=1) == targets).float().mean().item())
 
 
-def evaluate(model: nn.Module, loader: DataLoader, device: torch.device, collect_spike_maps: bool = False) -> tuple[float, np.ndarray, np.ndarray, dict | None]:
+def evaluate(model: nn.Module, loader: DataLoader, device: torch.device, collect_spike_maps: bool = False, return_proba: bool = False) -> tuple[float, np.ndarray, np.ndarray, dict | None, np.ndarray | None]:
     model.eval()
     correct = 0
     total = 0
     predictions = []
     targets_all = []
+    probas_all = []
     spike_maps = None
     if collect_spike_maps and hasattr(model, "register_spike_hooks"):
         hooks = model.register_spike_hooks()
@@ -453,9 +454,12 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device, collect
             total += int(y.numel())
             predictions.extend(pred.cpu().numpy().tolist())
             targets_all.extend(y.cpu().numpy().tolist())
+            if return_proba:
+                probas_all.append(torch.softmax(logits, dim=1).cpu().numpy())
     if hooks:
         spike_maps = {hook.name: hook.get_activation_map().numpy() for hook in hooks}
-    return correct / max(total, 1), np.array(predictions), np.array(targets_all), spike_maps
+    proba_array = np.concatenate(probas_all) if return_proba and probas_all else None
+    return correct / max(total, 1), np.array(predictions), np.array(targets_all), spike_maps, proba_array
 
 
 def train_single_run(
@@ -513,9 +517,9 @@ def train_single_run(
 
         # ── Validate: use val set if available, else (legacy) use test set ──
         if has_val:
-            val_acc, _, _, _ = evaluate(model, val_loader, device)
+            val_acc, _, _, _, _ = evaluate(model, val_loader, device)
         else:
-            val_acc, _, _, _ = evaluate(model, test_loader, device)
+            val_acc, _, _, _, _ = evaluate(model, test_loader, device)
 
         row = {
             "epoch": epoch,
@@ -540,8 +544,8 @@ def train_single_run(
     if (output_dir / "best_model.pt").exists():
         model.load_state_dict(torch.load(output_dir / "best_model.pt", weights_only=True))
 
-    test_acc, predictions, targets, spike_maps = evaluate(
-        model, test_loader, device, collect_spike_maps=True,
+    test_acc, predictions, targets, spike_maps, proba = evaluate(
+        model, test_loader, device, collect_spike_maps=True, return_proba=True,
     )
 
     # ── Per-class + aggregate metrics ──
@@ -563,6 +567,23 @@ def train_single_run(
     macro_recall = float(macro.get("recall", 0))
     macro_f1 = float(macro.get("f1-score", 0))
 
+    # ── Sweep-level aggregation (if test_groups available) ──
+    sweep_metrics = None
+    test_groups = bundle.test_groups
+    if test_groups is not None and len(test_groups) == len(predictions):
+        sweep_metrics = aggregate_to_sweep(
+            predictions=predictions,
+            probabilities=proba,
+            targets=targets,
+            groups=test_groups,
+            labels=bundle.labels,
+            method="mean_logits" if proba is not None else "majority_vote",
+        )
+        sweep_acc = float((sweep_metrics["sweep_preds"] == sweep_metrics["sweep_targets"]).mean())
+        sweep_metrics["sweep_accuracy"] = sweep_acc
+        print(f"  Sweep-level accuracy ({sweep_metrics['method']}): {sweep_acc:.4f} "
+              f"({len(sweep_metrics['sweep_keys'])} sweeps)")
+
     metrics = {
         "seed": seed,
         "model": model_name,
@@ -583,6 +604,11 @@ def train_single_run(
         "has_val": has_val,
         "best": best,
     }
+    if sweep_metrics is not None:
+        metrics["sweep_accuracy"] = sweep_metrics["sweep_accuracy"]
+        metrics["sweep_aggregation_method"] = sweep_metrics["method"]
+        metrics["n_sweeps"] = len(sweep_metrics["sweep_keys"])
+
     with (output_dir / "metrics.json").open("w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
     with (output_dir / "history.csv").open("w", newline="", encoding="utf-8") as f:
@@ -591,17 +617,37 @@ def train_single_run(
         writer.writeheader()
         writer.writerows(history)
     with (output_dir / "predictions.csv").open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["target", "prediction", "target_label", "prediction_label"])
+        pred_fields = ["target", "prediction", "target_label", "prediction_label"]
+        has_sweep_key = test_groups is not None and len(test_groups) == len(predictions)
+        if has_sweep_key:
+            pred_fields.append("sweep_key")
+        writer = csv.DictWriter(f, fieldnames=pred_fields)
         writer.writeheader()
-        for target, pred in zip(targets.tolist(), predictions.tolist()):
-            writer.writerow(
-                {
-                    "target": target,
-                    "prediction": pred,
-                    "target_label": bundle.labels[target],
-                    "prediction_label": bundle.labels[pred],
-                }
-            )
+        for i, (target, pred) in enumerate(zip(targets.tolist(), predictions.tolist())):
+            row = {
+                "target": target,
+                "prediction": pred,
+                "target_label": bundle.labels[target],
+                "prediction_label": bundle.labels[pred],
+            }
+            if has_sweep_key:
+                row["sweep_key"] = str(test_groups[i])
+            writer.writerow(row)
+    if sweep_metrics is not None:
+        with (output_dir / "sweep_predictions.csv").open("w", newline="", encoding="utf-8") as f:
+            sw_fields = ["sweep_key", "target", "prediction", "target_label", "prediction_label"]
+            writer = csv.DictWriter(f, fieldnames=sw_fields)
+            writer.writeheader()
+            for i in range(len(sweep_metrics["sweep_keys"])):
+                t = int(sweep_metrics["sweep_targets"][i])
+                p = int(sweep_metrics["sweep_preds"][i])
+                writer.writerow({
+                    "sweep_key": sweep_metrics["sweep_keys"][i],
+                    "target": t,
+                    "prediction": p,
+                    "target_label": bundle.labels[t],
+                    "prediction_label": bundle.labels[p],
+                })
     if spike_maps:
         np.savez_compressed(output_dir / "spike_maps.npz", **spike_maps)
     return metrics

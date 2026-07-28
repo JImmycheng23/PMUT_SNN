@@ -112,5 +112,8 @@
     "train_loss": 0.32721402682363987,
     "train_accuracy": 0.88671875,
     "val_accuracy": 0.8913043478260869
-  }
+  },
+  "sweep_accuracy": 1.0,
+  "sweep_aggregation_method": "mean_logits",
+  "n_sweeps": 5
 }

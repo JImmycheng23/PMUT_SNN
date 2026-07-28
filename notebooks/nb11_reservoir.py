@@ -43,6 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.pmut_models.config import DEFAULT_DATA_ROOT, DEFAULT_OUTPUT_ROOT
 from src.pmut_models.data import (
     build_dataset,
+    build_dataset_folds,
     load_task_frame,
     make_sequence_samples,
     split_indices,
@@ -682,6 +683,9 @@ def main() -> None:
     parser.add_argument("--memory-capacity", action="store_true", help="Estimate memory capacity")
     parser.add_argument("--lsm", action="store_true", help="Train Liquid State Machine (LIF reservoir) instead of ESN")
     parser.add_argument("--all", action="store_true", help="Run all analyses (sweep + analyze + modality + memory)")
+    parser.add_argument("--folds", action="store_true",
+        help="Use 3-fold sweep-level rotation (build_dataset_folds). "
+             "Required for reproducible fold-based results.")
 
     args = parser.parse_args()
 
@@ -702,16 +706,27 @@ def main() -> None:
     # 1. Build dataset
     # ------------------------------------------------------------------
     print("\n[1/5] Loading dataset...")
-    bundle = build_dataset(
-        task=args.task,
-        split=args.split,
-        data_root=args.data_root,
-        window_size=args.window_size,
-        stride=args.stride,
-    )
-    print(f"  Train: {bundle.x_train.shape}  Test: {bundle.x_test.shape}")
-    print(f"  Classes: {bundle.labels}")
-    print(f"  Unique groups train/test: {len(set(bundle.train_groups))}/{len(set(bundle.test_groups))}")
+    if args.folds:
+        bundles = build_dataset_folds(
+            task=args.task,
+            data_root=args.data_root,
+            window_size=args.window_size,
+            stride=args.stride,
+        )
+        print(f"  Fold protocol: {len(bundles)} folds")
+        for fi, b in enumerate(bundles):
+            print(f"    Fold {fi}: train={b.x_train.shape[0]} val={b.x_val.shape[0]} test={b.x_test.shape[0]}")
+    else:
+        bundles = [build_dataset(
+            task=args.task,
+            split=args.split,
+            data_root=args.data_root,
+            window_size=args.window_size,
+            stride=args.stride,
+        )]
+        print(f"  Train: {bundles[0].x_train.shape}  Test: {bundles[0].x_test.shape}")
+        print(f"  Classes: {bundles[0].labels}")
+        print(f"  Unique groups train/test: {len(set(bundles[0].train_groups))}/{len(set(bundles[0].test_groups))}")
 
     # ------------------------------------------------------------------
     # 2. Memory capacity estimation (independent of task data)
@@ -781,12 +796,25 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 4. Train reservoir (ESN or LSM) with best/default params
     # ------------------------------------------------------------------
+    all_fold_accs: list[float] = []
+    for fold_idx, bundle in enumerate(bundles):
+        fold_label = f"fold{fold_idx}" if len(bundles) > 1 else "single"
+        fold_out_dir = out_dir / fold_label if len(bundles) > 1 else out_dir
+        if len(bundles) > 1:
+            print(f"\n{'='*60}")
+            print(f"FOLD {fold_idx}  (train={bundle.metadata.get('train_sweeps',['?'])[0]}, "
+                  f"val={bundle.metadata.get('val_sweeps',['?'])[0]}, "
+                  f"test={bundle.metadata.get('test_sweeps',['?'])[0]})")
+            print(f"  Train: {bundle.x_train.shape[0]}  Val: {bundle.x_val.shape[0]}  "
+                  f"Test: {bundle.x_test.shape[0]}")
+            print(f"{'='*60}")
+
     model_type = "LSM (LIF)" if args.lsm else "ESN (tanh)"
     print(f"\n[{'3' if run_sweep else '2'}/5] Training {model_type}...")
 
     if args.lsm:
         # ── LSM path ──
-        lsm_out_dir = out_dir / "lsm"
+        lsm_out_dir = fold_out_dir / "lsm"
         lsm_out_dir.mkdir(parents=True, exist_ok=True)
         print(f"  Params: n={best_params['n_reservoir']}, β={args.beta}, θ={args.threshold}, "
               f"SR={args.spectral_radius}, IS={args.input_scaling}")
@@ -855,7 +883,7 @@ def main() -> None:
             json.dump(result_spikes, f, indent=2)
 
         # Point out_dir to lsm_out_dir for subsequent plots/CSVs
-        out_dir = lsm_out_dir
+        fold_out_dir = lsm_out_dir
     else:
         # ── ESN path (original) ──
         print(f"  Params: n={best_params['n_reservoir']}, SR={best_params['spectral_radius']}, "
@@ -877,7 +905,7 @@ def main() -> None:
             test_std = summary["test_accuracy_std"]
             print(f"  Test accuracy: {test_acc:.4f} ± {test_std:.4f} ({args.num_seeds} seeds)")
 
-            with open(out_dir / "metrics_summary.json", "w") as f:
+            with open(fold_out_dir / "metrics_summary.json", "w") as f:
                 json.dump(summary, f, indent=2)
             result = summary["individual_results"][0]
         else:
@@ -898,7 +926,7 @@ def main() -> None:
             print(f"  Test accuracy:  {test_acc:.4f}")
 
     # Save metrics
-    metrics_path = out_dir / "metrics.json"
+    metrics_path = fold_out_dir / "metrics.json"
     with open(metrics_path, "w") as f:
         json.dump(result, f, indent=2)
 
@@ -910,15 +938,15 @@ def main() -> None:
 
     # Plot confusion matrix
     cm_path = plot_confusion_matrix(
-        np.array(result["confusion_matrix"]), result["labels"], args.task, out_dir
+        np.array(result["confusion_matrix"]), result["labels"], args.task, fold_out_dir
     )
     print(f"\n  Confusion matrix → {cm_path}")
 
     # Plot per-class accuracy
-    pc_path = plot_per_class_accuracy(result["per_class_accuracy"], args.task, out_dir)
+    pc_path = plot_per_class_accuracy(result["per_class_accuracy"], args.task, fold_out_dir)
 
     # Save predictions CSV
-    preds_path = out_dir / "predictions.csv"
+    preds_path = fold_out_dir / "predictions.csv"
     with open(preds_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["target", "prediction", "target_label", "prediction_label"])
         writer.writeheader()
@@ -936,9 +964,9 @@ def main() -> None:
     if run_modality:
         step = "4" if run_sweep else "3"
         print(f"\n[{step}/5] Running modality comparison (amplitude vs phase vs combined)...")
-        modality_results = run_modality_comparison(bundle, best_params, args.task, out_dir, use_lsm=args.lsm)
+        modality_results = run_modality_comparison(bundle, best_params, args.task, fold_out_dir, use_lsm=args.lsm)
 
-        with open(out_dir / "modality_comparison.json", "w") as f:
+        with open(fold_out_dir / "modality_comparison.json", "w") as f:
             json.dump(modality_results, f, indent=2)
 
         print(f"  {'Modality':<20s} {'Test Acc':>10s}")
@@ -960,7 +988,7 @@ def main() -> None:
         for i, a in enumerate(accs):
             ax.text(i, a + 0.02, f"{a:.4f}", ha="center", fontweight="bold")
         fig.tight_layout()
-        mod_path = out_dir / f"{args.task}_modality.png"
+        mod_path = fold_out_dir / f"{args.task}_modality.png"
         fig.savefig(mod_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
         print(f"  Modality plot → {mod_path}")
@@ -972,9 +1000,9 @@ def main() -> None:
         step = "4" if run_sweep else "3"
         step = "5" if run_sweep else step
         print(f"\n[{step}/5] Analyzing reservoir state dynamics...")
-        analysis = analyze_reservoir_states(bundle, best_params, args.task, out_dir)
+        analysis = analyze_reservoir_states(bundle, best_params, args.task, fold_out_dir)
 
-        with open(out_dir / "state_analysis.json", "w") as f:
+        with open(fold_out_dir / "state_analysis.json", "w") as f:
             json.dump(analysis, f, indent=2)
 
         print(f"  States captured for {analysis['states_captured']}/{len(bundle.labels)} classes")
@@ -982,13 +1010,25 @@ def main() -> None:
         for pair, score in sorted(analysis["separability"].items()):
             print(f"    {pair:<35s}: {score:.4f}")
 
+    # Track fold accuracy for cross-fold summary
+    all_fold_accs.append(test_acc)
+
+    # ── End of fold loop ──
+
     # ------------------------------------------------------------------
     # Summary
     # ------------------------------------------------------------------
+    if len(bundles) > 1 and all_fold_accs:
+        print(f"\n{'='*60}")
+        print(f"Cross-fold summary ({args.num_seeds} seeds/fold):")
+        print(f"  Per-fold:  {[f'{a:.4f}' for a in all_fold_accs]}")
+        print(f"  Mean ± std: {np.mean(all_fold_accs):.4f} ± {np.std(all_fold_accs):.4f}")
+        print(f"{'='*60}")
+
     print(f"\n{'='*60}")
     print(f"Notebook 11 complete — {args.task}")
     print(f"  Test accuracy: {test_acc:.4f}" + (f" ± {test_std:.4f}" if args.num_seeds > 1 else ""))
-    print(f"  Outputs → {out_dir}")
+    print(f"  Outputs → {fold_out_dir}")
     print(f"{'='*60}")
 
 
