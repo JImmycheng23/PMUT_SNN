@@ -21,7 +21,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -45,7 +45,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -69,7 +69,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -93,7 +93,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -117,7 +117,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -141,7 +141,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -165,7 +165,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -189,7 +189,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -213,7 +213,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -237,7 +237,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -261,7 +261,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -285,7 +285,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -309,7 +309,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -333,7 +333,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -357,7 +357,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -381,7 +381,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -405,7 +405,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -429,7 +429,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -453,7 +453,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -477,7 +477,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -501,7 +501,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -525,7 +525,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -549,7 +549,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -573,7 +573,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -597,7 +597,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -621,7 +621,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -645,7 +645,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -669,7 +669,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -693,7 +693,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -717,7 +717,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -741,7 +741,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -765,7 +765,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -789,7 +789,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -813,7 +813,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -837,7 +837,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -861,7 +861,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -885,7 +885,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -909,7 +909,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -933,7 +933,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -957,7 +957,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -981,7 +981,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1005,7 +1005,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1029,7 +1029,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1053,7 +1053,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1077,7 +1077,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1101,7 +1101,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1125,7 +1125,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1149,7 +1149,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1173,7 +1173,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1197,7 +1197,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1221,7 +1221,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1245,7 +1245,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1269,7 +1269,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1293,7 +1293,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1317,7 +1317,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1341,7 +1341,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1365,7 +1365,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1389,7 +1389,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1413,7 +1413,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2_seed123\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1437,7 +1437,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2_seed2024\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1461,7 +1461,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2_seed42\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1485,7 +1485,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2_seed7\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural",
@@ -1509,7 +1509,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2_seed999\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1533,7 +1533,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold0\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1557,7 +1557,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold1\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1581,7 +1581,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\cnn1d\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1605,7 +1605,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold0\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1629,7 +1629,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold1\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1653,7 +1653,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\rate_snn_mlp\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1677,7 +1677,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold0\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1701,7 +1701,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold1\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1725,7 +1725,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\spiking_cnn1d\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1749,7 +1749,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold0\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1773,7 +1773,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold1\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "neural_summary",
@@ -1797,7 +1797,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "runs\\high-glucose_folds_w128\\temporal_lif_snn\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1821,7 +1821,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold0\\lsm\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1845,7 +1845,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold0\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1869,7 +1869,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold1\\lsm\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1893,7 +1893,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold1\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1917,7 +1917,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold2\\lsm\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1941,7 +1941,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1965,7 +1965,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\random_window_w128\\fold2\\lsm\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -1989,7 +1989,55 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\random_window_w128\\fold2\\metrics_summary.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "reservoir",
+    "task": "high-glucose",
+    "split": "grouped_w128",
+    "fold": 2,
+    "window": 128,
+    "model": "LSM (membrane)",
+    "input_representation": "continuous_reservoir_membrane",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.8391304347826087,
+    "accuracy_std": null,
+    "balanced_accuracy": 0.8391304347826087,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": "{\"Glucose 50 mM\": 0.8260869565217391, \"Glucose 100 mM\": 0.43478260869565216, \"Glucose 250 mM\": 1.0, \"Glucose 500 mM\": 1.0, \"Glucose 1000 mM\": 0.9347826086956522}",
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold2\\lsm\\metrics.json",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "reservoir",
+    "task": "high-glucose",
+    "split": "grouped_w128",
+    "fold": 2,
+    "window": 128,
+    "model": "ESN (tanh)",
+    "input_representation": "continuous_reservoir_tanh",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.8304347826086956,
+    "accuracy_std": null,
+    "balanced_accuracy": 0.8304347826086955,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": "{\"Glucose 50 mM\": 1.0, \"Glucose 100 mM\": 0.8695652173913043, \"Glucose 250 mM\": 0.8695652173913043, \"Glucose 500 mM\": 1.0, \"Glucose 1000 mM\": 0.41304347826086957}",
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold2\\metrics.json",
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir",
@@ -2013,7 +2061,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\random_window_w128\\fold2\\lsm\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir",
@@ -2037,7 +2085,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\random_window_w128\\fold2\\metrics.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -2061,7 +2109,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold0\\lsm\\metrics_spikes.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir_summary",
@@ -2085,10 +2133,10 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold1\\lsm\\metrics_spikes.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
-    "experiment": "reservoir_summary",
+    "experiment": "reservoir",
     "task": "high-glucose",
     "split": "grouped_w128",
     "fold": 2,
@@ -2097,19 +2145,19 @@
     "input_representation": "continuous_reservoir_spikes",
     "prediction_level": "window",
     "seed": null,
-    "num_seeds": 5,
-    "accuracy": 0.8765217391304349,
-    "accuracy_std": 0.015211178856118175,
-    "balanced_accuracy": null,
+    "num_seeds": 1,
+    "accuracy": 0.8913043478260869,
+    "accuracy_std": null,
+    "balanced_accuracy": 0.8913043478260869,
     "macro_f1": null,
     "best_val_accuracy": null,
     "best_epoch": null,
-    "per_class_recall": null,
+    "per_class_recall": "{\"Glucose 50 mM\": 1.0, \"Glucose 100 mM\": 0.9130434782608695, \"Glucose 250 mM\": 1.0, \"Glucose 500 mM\": 1.0, \"Glucose 1000 mM\": 0.5434782608695652}",
     "spike_count": null,
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\grouped_w128\\fold2\\lsm\\metrics_spikes.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "reservoir",
@@ -2133,7 +2181,247 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "reservoir\\high-glucose\\random_window_w128\\fold2\\lsm\\metrics_spikes.json",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "encoder_comparison",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "Encoder(rate)+LR",
+    "input_representation": "spike_aggregate(rate)",
+    "prediction_level": "sweep",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.4,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "encoder_evaluation\\high-glucose_encoder_comparison.csv",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "encoder_comparison",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "Encoder(delta)+LR",
+    "input_representation": "spike_aggregate(delta)",
+    "prediction_level": "sweep",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.4,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "encoder_evaluation\\high-glucose_encoder_comparison.csv",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "encoder_comparison",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "Encoder(latency)+LR",
+    "input_representation": "spike_aggregate(latency)",
+    "prediction_level": "sweep",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.2,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "encoder_evaluation\\high-glucose_encoder_comparison.csv",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "encoder_comparison",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "Encoder(threshold)+LR",
+    "input_representation": "spike_aggregate(threshold)",
+    "prediction_level": "sweep",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.0,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "encoder_evaluation\\high-glucose_encoder_comparison.csv",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "encoder_comparison",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "Encoder(population)+LR",
+    "input_representation": "spike_aggregate(population)",
+    "prediction_level": "sweep",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.0,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "encoder_evaluation\\high-glucose_encoder_comparison.csv",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "fixed_point",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "LSM (quantized)",
+    "input_representation": "continuous_quantized",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.8391304347826087,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": null,
+    "hdl_verified": null,
+    "result_file_path": "fixed_point\\high-glucose\\bit_width_study.json",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "fixed_point",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "LSM (quantized)",
+    "input_representation": "continuous_quantized",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.8478260869565217,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": 16,
+    "hdl_verified": null,
+    "result_file_path": "fixed_point\\high-glucose\\bit_width_study.json",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "fixed_point",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "LSM (quantized)",
+    "input_representation": "continuous_quantized",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.8391304347826087,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": 12,
+    "hdl_verified": null,
+    "result_file_path": "fixed_point\\high-glucose\\bit_width_study.json",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "fixed_point",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "LSM (quantized)",
+    "input_representation": "continuous_quantized",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.7521739130434782,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": 8,
+    "hdl_verified": null,
+    "result_file_path": "fixed_point\\high-glucose\\bit_width_study.json",
+    "git_commit": "17d3511"
+  },
+  {
+    "experiment": "fixed_point",
+    "task": "high-glucose",
+    "split": "grouped",
+    "fold": null,
+    "window": null,
+    "model": "LSM (quantized)",
+    "input_representation": "continuous_quantized",
+    "prediction_level": "window",
+    "seed": null,
+    "num_seeds": 1,
+    "accuracy": 0.717391304347826,
+    "accuracy_std": null,
+    "balanced_accuracy": null,
+    "macro_f1": null,
+    "best_val_accuracy": null,
+    "best_epoch": null,
+    "per_class_recall": null,
+    "spike_count": null,
+    "bit_width": 4,
+    "hdl_verified": null,
+    "result_file_path": "fixed_point\\high-glucose\\bit_width_study.json",
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2157,7 +2445,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2181,7 +2469,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2205,7 +2493,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2229,7 +2517,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2253,7 +2541,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2277,7 +2565,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "feature_ml",
@@ -2301,7 +2589,7 @@
     "bit_width": null,
     "hdl_verified": null,
     "result_file_path": "feature_ml\\high-glucose_baseline_summary.csv",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "hdl_status",
@@ -2325,7 +2613,7 @@
     "bit_width": null,
     "hdl_verified": true,
     "result_file_path": "outputs\\hdl\\HDL_SPECIFICATION.md",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "hdl_status",
@@ -2349,7 +2637,7 @@
     "bit_width": null,
     "hdl_verified": true,
     "result_file_path": "outputs\\hdl\\lif_neuron_fxp.v",
-    "git_commit": "unknown"
+    "git_commit": "17d3511"
   },
   {
     "experiment": "hdl_status",
@@ -2371,9 +2659,9 @@
     "per_class_recall": null,
     "spike_count": null,
     "bit_width": null,
-    "hdl_verified": false,
-    "result_file_path": null,
-    "git_commit": "unknown"
+    "hdl_verified": true,
+    "result_file_path": "outputs\\hdl_test_vectors\\high-glucose\\16-bit\\params.json",
+    "git_commit": "17d3511"
   },
   {
     "experiment": "hdl_status",
@@ -2395,8 +2683,8 @@
     "per_class_recall": null,
     "spike_count": null,
     "bit_width": null,
-    "hdl_verified": false,
-    "result_file_path": null,
-    "git_commit": "unknown"
+    "hdl_verified": true,
+    "result_file_path": "outputs\\hdl_test_vectors\\high-glucose\\12-bit\\params.json",
+    "git_commit": "17d3511"
   }
 ]

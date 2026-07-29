@@ -1,0 +1,95 @@
+{
+  "criteria": {
+    "accuracy": 0.35,
+    "robustness": 0.2,
+    "spike_efficiency": 0.25,
+    "complexity": 0.1,
+    "reproducibility": 0.1
+  },
+  "scores": [
+    {
+      "pipeline": "Reservoir + Ridge",
+      "spike_based": false,
+      "avg_accuracy": 0.793623188405797,
+      "best_accuracy": 0.8608695652173912,
+      "accuracy_score": 0.922360248447205,
+      "robustness_score": 0.9044133442130857,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.8,
+      "reproducibility_score": 0.8,
+      "total_score": 0.738708755799139
+    },
+    {
+      "pipeline": "RF on Features",
+      "spike_based": false,
+      "avg_accuracy": 0.9333333333333332,
+      "best_accuracy": 0.9333333333333332,
+      "accuracy_score": 1.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.5,
+      "reproducibility_score": 0.5,
+      "total_score": 0.6583333333333333
+    },
+    {
+      "pipeline": "Latency-Encoded + LR",
+      "spike_based": true,
+      "avg_accuracy": 0.2,
+      "best_accuracy": 0.2,
+      "accuracy_score": 0.21428571428571433,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.9,
+      "reproducibility_score": 0.5,
+      "total_score": 0.5483333333333333
+    },
+    {
+      "pipeline": "TemporalLIFSNN",
+      "spike_based": true,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.6,
+      "reproducibility_score": 0.5,
+      "total_score": 0.44333333333333336
+    },
+    {
+      "pipeline": "SpikingCNN1D",
+      "spike_based": true,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.8,
+      "complexity_score": 0.35,
+      "reproducibility_score": 0.5,
+      "total_score": 0.41833333333333333
+    },
+    {
+      "pipeline": "CNN1D (non-spiking)",
+      "spike_based": false,
+      "avg_accuracy": 0.0,
+      "best_accuracy": 0.0,
+      "accuracy_score": 0.0,
+      "robustness_score": 0.6666666666666666,
+      "spike_efficiency_score": 0.3,
+      "complexity_score": 0.3,
+      "reproducibility_score": 0.5,
+      "total_score": 0.28833333333333333
+    }
+  ],
+  "selected": {
+    "pipeline": "Reservoir + Ridge",
+    "spike_based": false,
+    "avg_accuracy": 0.793623188405797,
+    "best_accuracy": 0.8608695652173912,
+    "accuracy_score": 0.922360248447205,
+    "robustness_score": 0.9044133442130857,
+    "spike_efficiency_score": 0.3,
+    "complexity_score": 0.8,
+    "reproducibility_score": 0.8,
+    "total_score": 0.738708755799139
+  }
+}

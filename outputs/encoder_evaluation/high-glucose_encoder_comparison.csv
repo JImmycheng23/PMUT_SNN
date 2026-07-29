@@ -1,0 +1,6 @@
+encoder,train_accuracy,test_accuracy,n_train,n_test,mean_spike_count,total_spike_count,efficiency
+rate,1.0,0.4,10,5,30016.2,451655,1.3326137219234946e-05
+delta,1.0,0.4,10,5,543.7,8150,0.0007356998344675372
+latency,1.0,0.2,10,5,6000.0,90000,3.3333333333333335e-05
+threshold,0.9,0.0,10,5,68.7,1042,0.0
+population,1.0,0.0,10,5,133.9,1983,0.0

@@ -2712,15 +2712,5 @@
     "warmup": 10,
     "state_reduction": "mean",
     "alpha": 1.0
-  },
-  "sweep_accuracy_mean": 0.8,
-  "sweep_accuracy_std": 0.0,
-  "sweep_accuracy_list": [
-    0.8,
-    0.8,
-    0.8,
-    0.8,
-    0.8
-  ],
-  "prediction_level_sweep": true
+  }
 }
